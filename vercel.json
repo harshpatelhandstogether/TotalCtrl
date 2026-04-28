@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://dev.totalctrl.com:2053/:path*"
+      "destination": "https://dev.totalctrl.com:2053/api/:path*"
     }
   ]
 }
