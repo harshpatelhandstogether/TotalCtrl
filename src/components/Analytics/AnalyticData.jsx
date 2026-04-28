@@ -106,7 +106,7 @@ export default function AnalyticData() {
 
   return (
     <div className="overflow-y-auto overscroll-auto h-[calc(100vh-80px)]">
-      <div className="mx-12 mt-10">
+      <div className="mx-8 mt-10">
         {/* Banner */}
         <div className="bg-[#f2f1ff] py-4 px-6 rounded-lg mb-10">
           <h1 className="text-[#362a96] font-semibold">
@@ -139,45 +139,54 @@ export default function AnalyticData() {
           </div>
         </div>
 
-        <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
-          {inventoryTotalLoading && <InventoryDataSkeleton col={4} />}
-          {inventoryTotalError && (
-            <div className="p-6 text-sm text-red-600">
-              Failed to load inventory values.
-            </div>
-          )}
-          {!inventoryTotalLoading &&
-            !inventoryTotalError &&
-            inventoryItems.map((item) => (
-              <div
-                className="inline-block pl-15 w-[25%] pr-2 py-10 border border-[#e7e7ec]"
-                key={item.id}
-              >
-                <h1 className="text-lg font-semibold">{item.name}</h1>
-                <h1 className="text-3xl font-semibold pt-5">
-                  {displayCurrency(Math.round(item.total), currency)}
-                </h1>
-                <p className="text-xs text-gray-600 py-2">
-                  {item.totalInventoryPercentage}% of total inventories value
-                </p>
-                <div className="w-[70%] bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className="bg-[#66c888] h-1.5 rounded-full"
-                    style={{
-                      width: `${item.totalInventoryPercentage < 0.1 ? 0.1 : item.totalInventoryPercentage}%`,
-                    }}
-                  ></div>
-                </div>
+        {/* Inventory grid */}
+        {inventoryTotalLoading && <InventoryDataSkeleton />}
+        {inventoryTotalError && (
+          <div className="p-6 text-sm text-red-600">
+            Failed to load inventory data.
+          </div>
+        )}
+       
+            
+        <div className="grid grid-cols-4 border border-[#e7e7ec] rounded-lg overflow-hidden shadow-lg">
+          {inventoryItems.map((item) => (
+            <div
+              key={item.id}
+              className="pl-15 pr-2 py-12 border-r border-b border-[#e7e7ec] last:border-r-0"
+            >
+              <h1 className="text-lg font-semibold">{item.name}</h1>
+
+              <h1 className="text-3xl font-semibold pt-5">
+                {displayCurrency(Math.round(item.total), currency)}
+              </h1>
+
+              <p className="text-xs text-gray-600 py-2">
+                {item.totalInventoryPercentage}% of total inventories value
+              </p>
+
+              {/* Progress bar */}
+              <div className="w-[70%] bg-gray-200 rounded-full h-1.5">
                 <div
-                  className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.total) < 1 ? "cursor-not-allowed  opacity-50" : "cursor-pointer"}`}
-                  disabled={Number(item?.total) < 1}
-                  onClick={() => handleViewDetailsClick(item.inventoryId)}
-                >
-                  View details{" "}
-                  <MdOutlineKeyboardArrowRight size={20} className="inline" />
-                </div>
+                  className="bg-[#66c888] h-1.5 rounded-full"
+                  style={{
+                    width: `${item.totalInventoryPercentage < 0.1 ? 0.1 : item.totalInventoryPercentage}%`,
+                  }}
+                ></div>
               </div>
-            ))}
+
+              {/* Action */}
+              <div
+                className={`text-[#208e4e] pt-6 font-semibold ${
+                  Number(item?.total) < 1
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={() => handleViewDetailsClick(item.inventoryId)}
+              >
+                View details →
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Food Usage */}
@@ -203,7 +212,7 @@ export default function AnalyticData() {
             </div>
           </div>
 
-          <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
+          <div className="shadow-lg grid grid-cols-3 border border-[#e7e7ec] rounded-lg overflow-hidden   mt-10">
             {totalFoodUsageLoading && <FoodUsageSkeleton />}
             {totalFoodUsageError && (
               <div className="p-6 text-sm text-red-600">
@@ -214,7 +223,7 @@ export default function AnalyticData() {
               !totalFoodUsageError &&
               totalFoodUsageItems.map((totalFoodUsage) => (
                 <div
-                  className="inline-block p-15 w-[33.33%] border border-[#e7e7ec]"
+                  className="inline-block p-15  border-r border-b border-[#e7e7ec] last:border-r-0"
                   key={totalFoodUsage.id}
                 >
                   <h1 className="text-lg font-semibold">
@@ -303,7 +312,7 @@ export default function AnalyticData() {
             </div>
           </div>
 
-          <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
+          <div className="shadow-lg grid grid-cols-4 border border-[#e7e7ec] rounded-lg overflow-hidden mt-10">
             {totalPurchaseLoading && <PurchaseSkeleton />}
             {totalPurchaseError && (
               <div className="p-6 text-sm text-red-600">
@@ -314,7 +323,7 @@ export default function AnalyticData() {
               !totalPurchaseError &&
               totalPurchaseItems.map((item) => (
                 <div
-                  className="inline-block pl-15 w-[25%] pr-2 py-10 border border-[#e7e7ec]"
+                  className="inline-block pl-15 pr-2 py-12 border-r border-b border-[#e7e7ec] last:border-r-0"
                   key={item.id}
                 >
                   <h1 className="text-lg font-semibold">{item.name}</h1>

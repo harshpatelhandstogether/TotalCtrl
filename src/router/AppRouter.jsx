@@ -6,6 +6,7 @@ import InternalOrder from "../pages/InternalOrder";
 import InternalOrderDetailPage from "../pages/InternalOrderDetailPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
 import AnalyticsDetailPage from "../pages/AnalyticsDetailPage";
+import InventoryStatsTabPage from "../pages/InventoryStatsTabPage";
 
 export default function AppRouter() {
   return (
@@ -26,7 +27,10 @@ export default function AppRouter() {
           path="/cogs-calculator"
           element={<div>COGS Calculator Page</div>}
         />
-        <Route path="/analytics-detail" element={<AnalyticsDetailPage />} />
+        <Route path="/analytics-detail" element={<AnalyticsDetailPage />} >
+        </Route>
+
+        <Route path=":name" element={<InventoryStatsTabPage />} />
       </Route>
     </Routes>
   );

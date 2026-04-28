@@ -208,7 +208,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
 
           {valueByStock && valueByStock.length > 3 && (
             <a
-              href="#"
+              href={`/byStock`}
               className="text-[#228f50]  app-bg block py-2 w-full text-center"
             >
               View more
@@ -238,7 +238,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </table>
           {valueByCategory && valueByCategory.length > 3 && (
             <a
-              href="#"
+              href="/byCategory"
               className="text-[#228f50]  app-bg block py-2 w-full text-center"
             >
               View more
@@ -285,7 +285,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
               </table>
               {checkInValueByCategory?.Data?.length > 3 && (
                 <a
-                  href="#"
+                  href="/byCheckInCategory"
                   className="text-[#228f50]  app-bg block py-2 w-full text-center"
                 >
                   View more
@@ -341,7 +341,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
               </table>
               {checkOutValueByCategory?.Data?.length > 3 && (
                 <a
-                  href="#"
+                  href="/byCheckOutCategory"
                   className="text-[#228f50]  app-bg block py-2 w-full text-center"
                 >
                   View more

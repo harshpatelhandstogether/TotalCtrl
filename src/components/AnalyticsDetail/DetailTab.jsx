@@ -3,8 +3,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import InventoryStatsTab from "./InventoryStatsTab";
 import FoodUsageTab from "./FoodUsageTab";
-import{ setActiveTab } from "../../slices/AnalyticSlice";
+import { setActiveTab } from "../../slices/AnalyticSlice";
 import { useDispatch } from "react-redux";
+import FoodWasteTab from "./FoodWasteTab";
 
 export default function DetailTab() {
   const navigate = useNavigate();
@@ -67,10 +68,14 @@ export default function DetailTab() {
         </div>
       </div>
       <div className="overflow-x-auto overflow-y-auto overscroll-auto h-[calc(100vh-220px)]">
-        {activeTab === "Inventory Stats" && <InventoryStatsTab selectedInventoryId={resolvedInventoryId} />}
-        {activeTab === "Food Usage" && <FoodUsageTab selectedInventoryId={resolvedInventoryId} />}
-       {/* {activeTab === "Food Waste" && <FoodWasteTab />}
-        {activeTab === "Purchases" && <PurchasesTab />}
+        {activeTab === "Inventory Stats" && (
+          <InventoryStatsTab selectedInventoryId={resolvedInventoryId} />
+        )}
+        {activeTab === "Food Usage" && (
+          <FoodUsageTab selectedInventoryId={resolvedInventoryId} />
+        )}
+        {activeTab === "Food Waste" && <FoodWasteTab />}
+        {/* {activeTab === "Purchases" && <PurchasesTab />}
         {activeTab === "Delivery Stats" && <DeliveryStatsTab />}
         {activeTab === "Transfers" && <TransfersTab />} */}
       </div>
