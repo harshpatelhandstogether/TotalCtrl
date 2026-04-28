@@ -5,37 +5,22 @@ import { fetchInventoryTotal } from "../../services/Analytics/InventoryTotal";
 import { displayCurrency } from "../../utils/formatCurrency";
 import { fetchTotalFoodUsage } from "../../services/Analytics/totalFoodUsage";
 import { getTotalPurchase } from "../../services/Analytics/totalPurchase";
-import {
-  DateRangePicker,
-  defaultStaticRanges,
-  createStaticRanges,
-} from "react-date-range";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-  subYears,
-  subMonths,
-} from "date-fns";
+
+import { startOfMonth, endOfMonth } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./datepicker.css";
-import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
-import { FaAngleDown } from "react-icons/fa6";
-import { RxCross1 } from "react-icons/rx";
-import { it } from "date-fns/locale";
-import { useNavigate , NavLink} from "react-router-dom";
+
+import { useNavigate, NavLink } from "react-router-dom";
 import InventoryDataSkeleton from "./Skeleton/InventoryDataSkeleton";
 import FoodUsageSkeleton from "./Skeleton/FoodUsageSkeleton";
 import PurchaseSkeleton from "./Skeleton/PurchaseSkeleton";
 import { useDispatch } from "react-redux";
 import { setInventoryId } from "../../slices/InventorySlice";
 import { setActiveTab } from "../../slices/AnalyticSlice";
+import DatePicker from "../UI/DatePicker";
 
 export default function AnalyticData() {
-  const [showFoodPicker, setShowFoodPicker] = useState(false);
-  const [showPurchasePicker, setShowPurchasePicker] = useState(false);
   const dispatch = useDispatch();
   const handleViewDetailsClick = (inventoryId) => {
     dispatch(setInventoryId(inventoryId));
@@ -43,71 +28,6 @@ export default function AnalyticData() {
     navigate("/analytics-detail");
   };
   const navigate = useNavigate();
-
-  const customStaticRanges = createStaticRanges([
-    {
-      label: "Today",
-      range: () => ({
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Yesterday",
-      range: () => ({
-        startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-        endDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-      }),
-    },
-    {
-      label: "This Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay()),
-        ),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Last Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 7),
-        ),
-        endDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 1),
-        ),
-      }),
-    },
-    {
-      label: "This Month",
-      range: () => ({
-        startDate: startOfMonth(new Date()),
-        endDate: endOfMonth(new Date()),
-      }),
-    },
-    {
-      label: "Last Month",
-      range: () => ({
-        startDate: startOfMonth(subMonths(new Date(), 1)),
-        endDate: endOfMonth(subMonths(new Date(), 1)),
-      }),
-    },
-    {
-      label: "This Year", // ← adds full current year range
-      range: () => ({
-        startDate: startOfYear(new Date()),
-        endDate: endOfYear(new Date()),
-      }),
-    },
-    {
-      label: "Last Year", // ← adds full last year range
-      range: () => ({
-        startDate: startOfYear(subYears(new Date(), 1)),
-        endDate: endOfYear(subYears(new Date(), 1)),
-      }),
-    },
-  ]);
 
   const [foodRange, setFoodRange] = useState([
     {
@@ -124,17 +44,6 @@ export default function AnalyticData() {
     },
   ]);
 
-  // Temp ranges (before Apply is clicked)
-  const [tempFoodRange, setTempFoodRange] = useState(foodRange);
-  const [tempPurchaseRange, setTempPurchaseRange] = useState(purchaseRange);
-
-  const getLabelForRange = (range) => {
-    const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
-    return matched
-      ? matched.label
-      : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
-  };
-
   const {
     data: inventoryTotal = [],
     error: inventoryTotalError,
@@ -143,7 +52,7 @@ export default function AnalyticData() {
   const inventoryItems = Array.isArray(inventoryTotal?.inventoryValue)
     ? inventoryTotal.inventoryValue
     : [];
-    console.log("Inventory total data:", inventoryTotal); // Debug log
+  console.log("Inventory total data:", inventoryTotal); // Debug log
   const currency = inventoryTotal?.currency || "";
 
   const {
@@ -156,31 +65,34 @@ export default function AnalyticData() {
     [],
     { immediate: false },
   );
-  
+
   useEffect(() => {
     refetchFoodUsage();
-   
   }, [foodRange]);
-  
+
   const totalFoodUsageItems = Array.isArray(totalFoodUsage?.foodUsage)
-  ? totalFoodUsage?.foodUsage
-  : [];
-  
+    ? totalFoodUsage?.foodUsage
+    : [];
+
   const {
     data: totalPurchase,
     loading: totalPurchaseLoading,
     error: totalPurchaseError,
     refetch: refetchTotalPurchase,
-  } = useApi(() => getTotalPurchase(purchaseRange[0].startDate, purchaseRange[0].endDate), [], { immediate: false });
+  } = useApi(
+    () =>
+      getTotalPurchase(purchaseRange[0].startDate, purchaseRange[0].endDate),
+    [],
+    { immediate: false },
+  );
 
   useEffect(() => {
     refetchTotalPurchase();
   }, [purchaseRange]);
 
-
   const totalPurchaseItems = Array.isArray(totalPurchase?.purchaseValue)
-  ? totalPurchase?.purchaseValue
-  : [];
+    ? totalPurchase?.purchaseValue
+    : [];
 
   const isPurchaseExportDisabled =
     totalPurchaseLoading ||
@@ -190,10 +102,8 @@ export default function AnalyticData() {
   const isFoodExportDisabled =
     totalFoodUsageLoading ||
     !!totalFoodUsageError ||
-    !totalFoodUsageItems.some(
-      (item) => Number(item?.totalCheckoutValue) >= 1,
-    );
-  
+    !totalFoodUsageItems.some((item) => Number(item?.totalCheckoutValue) >= 1);
+
   return (
     <div className="overflow-y-auto overscroll-auto h-[calc(100vh-80px)]">
       <div className="mx-12 mt-10">
@@ -230,9 +140,7 @@ export default function AnalyticData() {
         </div>
 
         <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
-          {inventoryTotalLoading && (
-            <InventoryDataSkeleton col={4} />
-          )}
+          {inventoryTotalLoading && <InventoryDataSkeleton col={4} />}
           {inventoryTotalError && (
             <div className="p-6 text-sm text-red-600">
               Failed to load inventory values.
@@ -260,7 +168,11 @@ export default function AnalyticData() {
                     }}
                   ></div>
                 </div>
-                <div className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.total) < 1 ? 'cursor-not-allowed  opacity-50' : 'cursor-pointer'}`} disabled={Number(item?.total) < 1} onClick={() => handleViewDetailsClick(item.inventoryId)}>
+                <div
+                  className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.total) < 1 ? "cursor-not-allowed  opacity-50" : "cursor-pointer"}`}
+                  disabled={Number(item?.total) < 1}
+                  onClick={() => handleViewDetailsClick(item.inventoryId)}
+                >
                   View details{" "}
                   <MdOutlineKeyboardArrowRight size={20} className="inline" />
                 </div>
@@ -274,102 +186,25 @@ export default function AnalyticData() {
             <div className="text-xl font-semibold">Food usage</div>
             <div className="flex items-center gap-5">
               <div className=" rounded-md px-4 py-1">
-                <button disabled={isFoodExportDisabled}
-                className={`border border-gray-300 rounded-md px-4 py-[6px] text-sm font-semibold transition-colors ${
-                  isFoodExportDisabled
-                    ? "bg-white text-[#ebecef] cursor-not-allowed  border border-[rgb(251, 251, 251)]"
-                    : "hover:bg-gray-100"
-                }`}>
+                <button
+                  disabled={isFoodExportDisabled}
+                  className={`border border-gray-300 rounded-md px-4 py-[6px] text-sm font-semibold transition-colors ${
+                    isFoodExportDisabled
+                      ? "bg-white text-[#ebecef] cursor-not-allowed  border border-[rgb(251, 251, 251)]"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
                   Export Data
                 </button>
               </div>
               {/* Date Picker Button */}
-              <div className="relative">
-                <div
-                  className="border border-gray-300 rounded-md px-4 py-[6px] item-center flex gap-14"
-                  onClick={() => {
-                    setTempFoodRange(foodRange);
-                    setShowFoodPicker((prev) => !prev);
-                  }}
-                >
-                  <button className="text-sm font-normal cursor-pointer">
-                    {getLabelForRange(foodRange)}
-                  </button>
-                  {!showFoodPicker ? (
-                    <button className="cursor-pointer ">
-                      <FaAngleDown className="text-[#abb1c1]" />
-                    </button>
-                  ) : (
-                    <button className="cursor-pointer ">
-                      <RxCross1 size={15} className="text-black" />
-                    </button>
-                  )}
-                </div>
-                {showFoodPicker && (
-                  <div className="absolute right-0 z-50 mt-2 shadow-xl rounded-lg overflow-hidden border border-gray-200">
-                    <DateRangePicker
-                      ranges={tempFoodRange}
-                      onChange={(item) => setTempFoodRange([item.selection])}
-                      months={2}
-                      direction="horizontal"
-                      showDateDisplay={false}
-                      staticRanges={customStaticRanges}
-                      inputRanges={[]}
-                      datePickerClassName="datePicker"
-                      navigatorRenderer={(
-                        currentFocusedDate,
-                        changeShownDate,
-                      ) => (
-                        <div className="flex items-center justify-between  py-2 z-20">
-                          <button
-                            onClick={() => changeShownDate(-1, "monthOffset")}
-                            className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                          >
-                            <MdOutlineKeyboardArrowLeft
-                              size={30}
-                              className="text-[#abb1c1]"
-                            />
-                          </button>
 
-                          <button
-                            onClick={() => changeShownDate(1, "monthOffset")}
-                            className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                          >
-                            <MdOutlineKeyboardArrowRight
-                              size={30}
-                              className="text-[#abb1c1]"
-                            />
-                          </button>
-                        </div>
-                      )}
-                    />
-                    <div className="flex justify-end gap-3 px-4 py-3 bg-white border-t border-gray-200">
-                      <button
-                        className="px-4 py-1 text-sm rounded border border-gray-300"
-                        onClick={() => setShowFoodPicker(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="px-4 py-1 text-sm rounded bg-[#23a956] text-white font-semibold"
-                        onClick={() => {
-                          setFoodRange(tempFoodRange);
-                          setShowFoodPicker(false);
-                        }}
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <DatePicker value={foodRange} onChange={setFoodRange} />
             </div>
           </div>
 
           <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
-            {totalFoodUsageLoading && (
-              <FoodUsageSkeleton />
-            )}
+            {totalFoodUsageLoading && <FoodUsageSkeleton />}
             {totalFoodUsageError && (
               <div className="p-6 text-sm text-red-600">
                 Failed to load total food usage.
@@ -434,7 +269,7 @@ export default function AnalyticData() {
                     }`}
                     onClick={() => {
                       dispatch(setActiveTab("Food Usage"));
-                      navigate('/analytics-detail');
+                      navigate("/analytics-detail");
                     }}
                   >
                     View details{" "}
@@ -450,7 +285,6 @@ export default function AnalyticData() {
           <div className="flex items-center justify-between mb-4">
             <div className="text-xl font-semibold">Purchases</div>
             <div className="flex items-center gap-5">
-
               <button
                 type="button"
                 disabled={isPurchaseExportDisabled}
@@ -462,95 +296,15 @@ export default function AnalyticData() {
               >
                 Export Data
               </button>
-              
-              {/* Date Picker Button */}
-              <div className="relative">
-                <div
-                  className="border border-gray-300 rounded-md px-4 py-[6px] item-center flex gap-14 cursor-pointer"
-                  onClick={() => {
-                    setTempPurchaseRange(purchaseRange);
-                    setShowPurchasePicker((prev) => !prev);
-                  }}
-                >
-                  <button className="text-sm font-normal cursor-pointer">
-                    {getLabelForRange(purchaseRange)}
-                  </button>
-                  {!showPurchasePicker ? (
-                    <button className="cursor-pointer ">
-                      <FaAngleDown className="text-[#abb1c1]" />
-                    </button>
-                  ) : (
-                    <button className="cursor-pointer ">
-                      <RxCross1 size={15} className="text-black" />
-                    </button>
-                  )}
-                </div>
-                {showPurchasePicker && (
-                  <div className="absolute right-0 z-50 mt-2 shadow-xl rounded-lg overflow-hidden border border-gray-200">
-                    <DateRangePicker
-                      ranges={tempPurchaseRange}
-                      onChange={(item) =>
-                        setTempPurchaseRange([item.selection])
-                      }
-                      months={2}
-                      direction="horizontal"
-                      showDateDisplay={false}
-                      staticRanges={customStaticRanges}
-                      inputRanges={[]}
-                      navigatorRenderer={(
-                        currentFocusedDate,
-                        changeShownDate,
-                      ) => (
-                        <div className="flex items-center justify-between  py-2 z-20">
-                          <button
-                            onClick={() => changeShownDate(-1, "monthOffset")}
-                            className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                          >
-                            <MdOutlineKeyboardArrowLeft
-                              size={30}
-                              className="text-[#abb1c1]"
-                            />
-                          </button>
 
-                          <button
-                            onClick={() => changeShownDate(1, "monthOffset")}
-                            className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                          >
-                            <MdOutlineKeyboardArrowRight
-                              size={30}
-                              className="text-[#abb1c1]"
-                            />
-                          </button>
-                        </div>
-                      )}
-                    />
-                    <div className="flex justify-end gap-3 px-4 py-3 bg-white border-t border-gray-200">
-                      <button
-                        className="px-4 py-1 text-sm rounded border border-gray-300"
-                        onClick={() => setShowPurchasePicker(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="px-4 py-1 text-sm rounded bg-[#23a956] text-white font-semibold"
-                        onClick={() => {
-                          setPurchaseRange(tempPurchaseRange);
-                          setShowPurchasePicker(false);
-                        }}
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* Date Picker Button */}
+
+              <DatePicker value={purchaseRange} onChange={setPurchaseRange} />
             </div>
           </div>
 
           <div className="shadow-lg border border-[#e7e7ec] rounded-lg h-full mt-10">
-            {totalPurchaseLoading && (
-              <PurchaseSkeleton  />
-            )}
+            {totalPurchaseLoading && <PurchaseSkeleton />}
             {totalPurchaseError && (
               <div className="p-6 text-sm text-red-600">
                 Failed to load purchase values.
@@ -568,7 +322,8 @@ export default function AnalyticData() {
                     {displayCurrency(Math.round(item.totalPurchases), currency)}
                   </h1>
                   <p className="text-xs text-gray-600 py-2">
-                    {item.totalPurchasesPercentage.toFixed(2)}% of total inventories value
+                    {item.totalPurchasesPercentage.toFixed(2)}% of total
+                    inventories value
                   </p>
                   <div className="w-[70%] bg-gray-200 rounded-full h-1.5">
                     <div
@@ -578,8 +333,10 @@ export default function AnalyticData() {
                       }}
                     ></div>
                   </div>
-                  <div className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.totalPurchases) < 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} disabled={Number(item?.totalPurchases) < 1}
-                   onClick={() =>navigate('/analytics-detail')}
+                  <div
+                    className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.totalPurchases) < 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+                    disabled={Number(item?.totalPurchases) < 1}
+                    onClick={() => navigate("/analytics-detail")}
                   >
                     View details{" "}
                     <MdOutlineKeyboardArrowRight size={20} className="inline" />

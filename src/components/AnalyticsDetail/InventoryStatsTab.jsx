@@ -1,27 +1,11 @@
 import React, { use, useEffect } from "react";
-import { FaAngleDown } from "react-icons/fa";
-import { RxCross1 } from "react-icons/rx";
-import {
-  MdOutlineKeyboardArrowLeft,
-  MdOutlineKeyboardArrowRight,
-} from "react-icons/md";
+
 import { useState } from "react";
-import {
-  DateRangePicker,
-  defaultStaticRanges,
-  createStaticRanges,
-} from "react-date-range";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-  subYears,
-  subMonths,
-} from "date-fns";
+
+import { startOfMonth, endOfMonth } from "date-fns";
 import { useApi } from "../../hooks/useApi";
 import { fetchInventoryTotal } from "../../services/Analytics/InventoryTotal";
-import { useSelector } from "react-redux";
+
 import { displayCurrency } from "../../utils/formatCurrency";
 import { fetchValueByStock } from "../../services/AnalyticsDetail/InventoryStats/value-by-stock";
 import { fetchValueByCategory } from "../../services/AnalyticsDetail/InventoryStats/value-by-category";
@@ -29,59 +13,58 @@ import { fetchCheckInValueByCategory } from "../../services/AnalyticsDetail/Inve
 import { fetchCheckOutValueByCategory } from "../../services/AnalyticsDetail/InventoryStats/check-out";
 import InventoryStateTabSkeleton from "./Skeleton/InventoryStateTabSkeleton";
 import { Skeleton } from "boneyard-js/react";
+import DatePicker from "../UI/DatePicker";
 
+// function ValueByStock({ valueByStock, inventoryTotal , valueByStockLoading }) {
+//     const rows = valueByStockLoading
+//       ? Array.from({ length: 3 }, (_, index) => ({
+//           id: `value-by-stock-loading-${index}`,
+//           name: "",
+//           total: 0,
+//         }))
+//       : (valueByStock?.slice(0, 3) ?? []);
 
-function ValueByStock({ valueByStock, inventoryTotal , valueByStockLoading }) {
-    const rows = valueByStockLoading
-      ? Array.from({ length: 3 }, (_, index) => ({
-          id: `value-by-stock-loading-${index}`,
-          name: "",
-          total: 0,
-        }))
-      : (valueByStock?.slice(0, 3) ?? []);
+//     return (
+//       <table className="w-full border-collapse">
+//             <thead>
+//               <tr>
+//                 <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
+//                   <label className="text-xs text-[#adadaf] font-normal">
+//                     VALUE BY SUPPLIER
+//                   </label>
+//                 </th>
+//                 <th className="py-4 px-4" />
+//               </tr>
+//             </thead>
+//             <tbody>
+//             {rows.map((item, index) => (
+//               <tr
+//                 className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer"
+//                 key={item.id ?? item.name ?? index}
+//               >
+//                 <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
+//                   <Skeleton name="ValueByStock" loading={valueByStockLoading}>
+//                     <span>{valueByStockLoading ? "Loading" : item.name}</span>
+//                   </Skeleton>
+//                 </td>
 
-    return (
-      <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
-                  <label className="text-xs text-[#adadaf] font-normal">
-                    VALUE BY SUPPLIER
-                  </label>
-                </th>
-                <th className="py-4 px-4" />
-              </tr>
-            </thead>
-            <tbody>
-            {rows.map((item, index) => (
-              <tr
-                className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer"
-                key={item.id ?? item.name ?? index}
-              >
-                <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
-                  <Skeleton name="ValueByStock" loading={valueByStockLoading}>
-                    <span>{valueByStockLoading ? "Loading" : item.name}</span>
-                  </Skeleton>
-                </td>
-
-                <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
-                  <Skeleton name="ValueByStock" loading={valueByStockLoading}>
-                  <span>
-                      {valueByStockLoading ? "Loading" :
-                      displayCurrency(
-                          Math.round(item.total || 0),
-                          inventoryTotal?.currency,
-                        )}
-                  </span>
-                  </Skeleton>
-                </td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
-    )
-}
-
+//                 <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
+//                   <Skeleton name="ValueByStock" loading={valueByStockLoading}>
+//                   <span>
+//                       {valueByStockLoading ? "Loading" :
+//                       displayCurrency(
+//                           Math.round(item.total || 0),
+//                           inventoryTotal?.currency,
+//                         )}
+//                   </span>
+//                   </Skeleton>
+//                 </td>
+//               </tr>
+//             ))}
+//             </tbody>
+//           </table>
+//     )
+// }
 
 export default function InventoryStatsTab({ selectedInventoryId }) {
   const {
@@ -106,73 +89,6 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetch: refetchValueByCategory,
   } = useApi(() => fetchValueByCategory(selectedInventoryId, 6, 0));
 
-  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
-  const [showCheckoutPicker, setShowCheckoutPicker] = useState(false);
-  const customStaticRanges = createStaticRanges([
-    {
-      label: "Today",
-      range: () => ({
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Yesterday",
-      range: () => ({
-        startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-        endDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-      }),
-    },
-    {
-      label: "This Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay()),
-        ),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Last Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 7),
-        ),
-        endDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 1),
-        ),
-      }),
-    },
-    {
-      label: "This Month",
-      range: () => ({
-        startDate: startOfMonth(new Date()),
-        endDate: endOfMonth(new Date()),
-      }),
-    },
-    {
-      label: "Last Month",
-      range: () => ({
-        startDate: startOfMonth(subMonths(new Date(), 1)),
-        endDate: endOfMonth(subMonths(new Date(), 1)),
-      }),
-    },
-    {
-      label: "This Year", // ← adds full current year range
-      range: () => ({
-        startDate: startOfYear(new Date()),
-        endDate: endOfYear(new Date()),
-      }),
-    },
-    {
-      label: "Last Year", // ← adds full last year range
-      range: () => ({
-        startDate: startOfYear(subYears(new Date(), 1)),
-        endDate: endOfYear(subYears(new Date(), 1)),
-      }),
-    },
-  ]);
-
   const [checkInRange, setCheckInRange] = useState([
     {
       startDate: startOfMonth(new Date()),
@@ -188,15 +104,6 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     },
   ]);
 
-  const [tempCheckInRange, setTempCheckInRange] = useState(checkInRange);
-  const [tempCheckoutRange, setTempCheckoutRange] = useState(checkoutRange);
-
-  const getLabelForRange = (range) => {
-    const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
-    return matched
-      ? matched.label
-      : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
-  };
   const {
     data: checkInValueByCategory,
     loading: checkInValueByCategoryLoading,
@@ -237,9 +144,15 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetchCheckOutValueByCategory();
   }, [selectedInventoryId, checkInRange, checkoutRange]);
 
-  // if(inventoryTotalLoading || valueByStockLoading || valueByCategoryLoading || checkInValueByCategoryLoading || checkOutValueByCategoryLoading){
-  //   return <InventoryStateTabSkeleton />
-  // }
+  if (
+    inventoryTotalLoading ||
+    valueByStockLoading ||
+    valueByCategoryLoading ||
+    checkInValueByCategoryLoading ||
+    checkOutValueByCategoryLoading
+  ) {
+    return <InventoryStateTabSkeleton />;
+  }
 
   return (
     <div className="px-10 py-10">
@@ -266,7 +179,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
       </div>
       <div className="flex gap-10 mb-10">
         <div className="valuebysupplier w-[50%]">
-          {/* <table className="w-full border-collapse">
+          <table className="w-full border-collapse">
             <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
               <label className="text-xs text-[#adadaf] font-normal">
                 VALUE BY SUPPLIER
@@ -290,9 +203,9 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
                 </td>
               </tr>
             ))}
-          </table> */}
-          <ValueByStock valueByStock={valueByStock} inventoryTotal={inventoryTotal} valueByStockLoading={valueByStockLoading}/>
-          
+          </table>
+          {/* <ValueByStock valueByStock={valueByStock} inventoryTotal={inventoryTotal} valueByStockLoading={valueByStockLoading}/> */}
+
           {valueByStock && valueByStock.length > 3 && (
             <a
               href="#"
@@ -340,85 +253,11 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </label>
           <div className="flex items-start justify-between px-4 mt-10">
             <h1>Check in</h1>
-            <div className="relative">
-              <div
-                className="border border-gray-300 rounded-md px-4 py-[6px] item-center flex gap-14"
-                onClick={() => {
-                  setTempCheckInRange(checkInRange);
-                  setShowCheckInPicker((prev) => !prev);
-                }}
-              >
-                <button className="text-sm font-normal cursor-pointer">
-                  {getLabelForRange(checkInRange)}
-                </button>
-                {!showCheckInPicker ? (
-                  <button className="cursor-pointer ">
-                    <FaAngleDown className="text-[#abb1c1]" />
-                  </button>
-                ) : (
-                  <button className="cursor-pointer ">
-                    <RxCross1 size={15} className="text-black" />
-                  </button>
-                )}
-              </div>
-              {showCheckInPicker && (
-                <div className="absolute right-0 z-50 mt-2 shadow-xl rounded-lg overflow-hidden border border-gray-200">
-                  <DateRangePicker
-                    ranges={tempCheckInRange}
-                    onChange={(item) => setTempCheckInRange([item.selection])}
-                    months={1}
-                    direction="horizontal"
-                    showDateDisplay={false}
-                    staticRanges={customStaticRanges}
-                    inputRanges={[]}
-                    datePickerClassName="datePicker"
-                    navigatorRenderer={(
-                      currentFocusedDate,
-                      changeShownDate,
-                    ) => (
-                      <div className="flex items-center justify-between  py-2 z-20">
-                        <button
-                          onClick={() => changeShownDate(-1, "monthOffset")}
-                          className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                        >
-                          <MdOutlineKeyboardArrowLeft
-                            size={30}
-                            className="text-[#abb1c1]"
-                          />
-                        </button>
-
-                        <button
-                          onClick={() => changeShownDate(1, "monthOffset")}
-                          className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                        >
-                          <MdOutlineKeyboardArrowRight
-                            size={30}
-                            className="text-[#abb1c1]"
-                          />
-                        </button>
-                      </div>
-                    )}
-                  />
-                  <div className="flex justify-end gap-3 px-4 py-3 bg-white border-t border-gray-200">
-                    <button
-                      className="px-4 py-1 text-sm rounded border border-gray-300"
-                      onClick={() => setShowCheckInPicker(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="px-4 py-1 text-sm rounded bg-[#23a956] text-white font-semibold"
-                      onClick={() => {
-                        setCheckInRange(tempCheckInRange);
-                        setShowCheckInPicker(false);
-                      }}
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <DatePicker
+              value={checkInRange}
+              onChange={setCheckInRange}
+              months={1}
+            />
           </div>
           {checkInValueByCategory?.TotalValue > 0 && (
             <div className="text-2xl px-4 mt-2">
@@ -471,85 +310,11 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </label>
           <div className="flex items-start justify-between px-4 mt-10">
             <h1>Check out</h1>
-            <div className="relative">
-              <div
-                className="border border-gray-300 rounded-md px-4 py-[6px] item-center flex gap-14"
-                onClick={() => {
-                  setTempCheckoutRange(checkoutRange);
-                  setShowCheckoutPicker((prev) => !prev);
-                }}
-              >
-                <button className="text-sm font-normal cursor-pointer">
-                  {getLabelForRange(checkoutRange)}
-                </button>
-                {!showCheckoutPicker ? (
-                  <button className="cursor-pointer ">
-                    <FaAngleDown className="text-[#abb1c1]" />
-                  </button>
-                ) : (
-                  <button className="cursor-pointer ">
-                    <RxCross1 size={15} className="text-black" />
-                  </button>
-                )}
-              </div>
-              {showCheckoutPicker && (
-                <div className="absolute right-0 z-50 mt-2 shadow-xl rounded-lg overflow-hidden border border-gray-200">
-                  <DateRangePicker
-                    ranges={tempCheckoutRange}
-                    onChange={(item) => setTempCheckoutRange([item.selection])}
-                    months={1}
-                    direction="horizontal"
-                    showDateDisplay={false}
-                    staticRanges={customStaticRanges}
-                    inputRanges={[]}
-                    datePickerClassName="datePicker"
-                    navigatorRenderer={(
-                      currentFocusedDate,
-                      changeShownDate,
-                    ) => (
-                      <div className="flex items-center justify-between  py-2 z-20">
-                        <button
-                          onClick={() => changeShownDate(-1, "monthOffset")}
-                          className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                        >
-                          <MdOutlineKeyboardArrowLeft
-                            size={30}
-                            className="text-[#abb1c1]"
-                          />
-                        </button>
-
-                        <button
-                          onClick={() => changeShownDate(1, "monthOffset")}
-                          className="border-2 border-gray-300 rounded-md p-1 hover:bg-gray-100 h-10 w-10 cursor-pointer"
-                        >
-                          <MdOutlineKeyboardArrowRight
-                            size={30}
-                            className="text-[#abb1c1]"
-                          />
-                        </button>
-                      </div>
-                    )}
-                  />
-                  <div className="flex justify-end gap-3 px-4 py-3 bg-white border-t border-gray-200">
-                    <button
-                      className="px-4 py-1 text-sm rounded border border-gray-300"
-                      onClick={() => setShowCheckoutPicker(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="px-4 py-1 text-sm rounded bg-[#23a956] text-white font-semibold"
-                      onClick={() => {
-                        setCheckoutRange(tempCheckoutRange);
-                        setShowCheckoutPicker(false);
-                      }}
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <DatePicker
+              value={checkoutRange}
+              onChange={setCheckoutRange}
+              months={1}
+            />
           </div>
           {checkOutValueByCategory?.TotalValue > 0 && (
             <div className="text-2xl px-4 mt-2">

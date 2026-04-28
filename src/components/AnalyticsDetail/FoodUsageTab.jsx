@@ -24,77 +24,79 @@ import { useApi } from "../../hooks/useApi";
 import { fetchTotalFoodUsage } from "../../services/Analytics/totalFoodUsage";
 import { displayCurrency } from "../../utils/formatCurrency";
 import { fetchFoodUsageProduct } from "../../services/AnalyticsDetail/FoodUsage/fetchFoodUsageProduct";
+import FoodUsageTabSkeleton from "./Skeleton/FoodUsageTab";
+import DatePicker from "../UI/DatePicker";
 
 export default function FoodUsageTab({ selectedInventoryId }) {
-  const [showFoodPicker, setShowFoodPicker] = useState(false);
-  const [showPurchasePicker, setShowPurchasePicker] = useState(false);
+  // const [showFoodPicker, setShowFoodPicker] = useState(false);
+  // const [showPurchasePicker, setShowPurchasePicker] = useState(false);
 
-  const navigate = useNavigate();
+ 
 
-  const customStaticRanges = createStaticRanges([
-    {
-      label: "Today",
-      range: () => ({
-        startDate: new Date(),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Yesterday",
-      range: () => ({
-        startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-        endDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-      }),
-    },
-    {
-      label: "This Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay()),
-        ),
-        endDate: new Date(),
-      }),
-    },
-    {
-      label: "Last Week",
-      range: () => ({
-        startDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 7),
-        ),
-        endDate: new Date(
-          new Date().setDate(new Date().getDate() - new Date().getDay() - 1),
-        ),
-      }),
-    },
-    {
-      label: "This Month",
-      range: () => ({
-        startDate: startOfMonth(new Date()),
-        endDate: endOfMonth(new Date()),
-      }),
-    },
-    {
-      label: "Last Month",
-      range: () => ({
-        startDate: startOfMonth(subMonths(new Date(), 1)),
-        endDate: endOfMonth(subMonths(new Date(), 1)),
-      }),
-    },
-    {
-      label: "This Year", // ← adds full current year range
-      range: () => ({
-        startDate: startOfYear(new Date()),
-        endDate: endOfYear(new Date()),
-      }),
-    },
-    {
-      label: "Last Year", // ← adds full last year range
-      range: () => ({
-        startDate: startOfYear(subYears(new Date(), 1)),
-        endDate: endOfYear(subYears(new Date(), 1)),
-      }),
-    },
-  ]);
+  // const customStaticRanges = createStaticRanges([
+  //   {
+  //     label: "Today",
+  //     range: () => ({
+  //       startDate: new Date(),
+  //       endDate: new Date(),
+  //     }),
+  //   },
+  //   {
+  //     label: "Yesterday",
+  //     range: () => ({
+  //       startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+  //       endDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+  //     }),
+  //   },
+  //   {
+  //     label: "This Week",
+  //     range: () => ({
+  //       startDate: new Date(
+  //         new Date().setDate(new Date().getDate() - new Date().getDay()),
+  //       ),
+  //       endDate: new Date(),
+  //     }),
+  //   },
+  //   {
+  //     label: "Last Week",
+  //     range: () => ({
+  //       startDate: new Date(
+  //         new Date().setDate(new Date().getDate() - new Date().getDay() - 7),
+  //       ),
+  //       endDate: new Date(
+  //         new Date().setDate(new Date().getDate() - new Date().getDay() - 1),
+  //       ),
+  //     }),
+  //   },
+  //   {
+  //     label: "This Month",
+  //     range: () => ({
+  //       startDate: startOfMonth(new Date()),
+  //       endDate: endOfMonth(new Date()),
+  //     }),
+  //   },
+  //   {
+  //     label: "Last Month",
+  //     range: () => ({
+  //       startDate: startOfMonth(subMonths(new Date(), 1)),
+  //       endDate: endOfMonth(subMonths(new Date(), 1)),
+  //     }),
+  //   },
+  //   {
+  //     label: "This Year", // ← adds full current year range
+  //     range: () => ({
+  //       startDate: startOfYear(new Date()),
+  //       endDate: endOfYear(new Date()),
+  //     }),
+  //   },
+  //   {
+  //     label: "Last Year", // ← adds full last year range
+  //     range: () => ({
+  //       startDate: startOfYear(subYears(new Date(), 1)),
+  //       endDate: endOfYear(subYears(new Date(), 1)),
+  //     }),
+  //   },
+  // ]);
 
   const [foodRange, setFoodRange] = useState([
     {
@@ -112,15 +114,15 @@ export default function FoodUsageTab({ selectedInventoryId }) {
   ]);
 
   // Temp ranges (before Apply is clicked)
-  const [tempFoodRange, setTempFoodRange] = useState(foodRange);
-  const [tempPurchaseRange, setTempPurchaseRange] = useState(purchaseRange);
+  // const [tempFoodRange, setTempFoodRange] = useState(foodRange);
+  // const [tempPurchaseRange, setTempPurchaseRange] = useState(purchaseRange);
 
-  const getLabelForRange = (range) => {
-    const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
-    return matched
-      ? matched.label
-      : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
-  };
+  // const getLabelForRange = (range) => {
+  //   const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
+  //   return matched
+  //     ? matched.label
+  //     : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
+  // };
 
   const {
     data: totalFoodUsage,
@@ -154,6 +156,10 @@ export default function FoodUsageTab({ selectedInventoryId }) {
       selectedInventoryId,
     );
   }, [selectedInventoryId, foodRange, refetchTotalFoodUsage]);
+
+  if(totalFoodUsageLoading || foodUsageDataLoading) {
+    return (<FoodUsageTabSkeleton />);
+  }
   return (
     <div className="px-10 py-6">
       <div className="flex items-center justify-between mb-4">
@@ -167,7 +173,7 @@ export default function FoodUsageTab({ selectedInventoryId }) {
             </button>
           </div>
           {/* Date Picker Button */}
-          <div className="relative">
+          {/* <div className="relative">
             <div
               className="border border-gray-300 rounded-md px-4 py-[6px] item-center flex gap-14"
               onClick={() => {
@@ -242,7 +248,8 @@ export default function FoodUsageTab({ selectedInventoryId }) {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
+          <DatePicker value={foodRange} onChange={setFoodRange}  />
         </div>
       </div>
 
