@@ -1,0 +1,50 @@
+{
+  "breakpoints": {
+    "375": {
+      "name": "InventoryTotal",
+      "viewportWidth": 219,
+      "width": 219,
+      "height": 180,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          180,
+          8
+        ]
+      ]
+    },
+    "768": {
+      "name": "InventoryTotal",
+      "viewportWidth": 298,
+      "width": 298,
+      "height": 60,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          60,
+          8
+        ]
+      ]
+    },
+    "1280": {
+      "name": "InventoryTotal",
+      "viewportWidth": 298,
+      "width": 298,
+      "height": 60,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          60,
+          8
+        ]
+      ]
+    }
+  },
+  "_hash": "62f6990e58072b12ac813f3424b98de8"
+}

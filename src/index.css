@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
+
+@font-face {
+  font-family: 'SourceSans3';
+  src: url('/font/SourceSans3-VariableFont_wght.ttf') format('truetype');
+  font-display: swap;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* margin: 0; */
+  /* padding: 0; */
+}
+
+
+/* ===== Body Styling ===== */
+
+body {
+  /*font-family: Arial, Helvetica, sans-serif;*/
+  /* font-family: "Nunito Sans", sans-serif; */
+  font-family: "SourceSans3", sans-serif;
+}
+
+
+select {
+  -webkit-appearance: none; /* Removes default styling in WebKit browsers */
+  -moz-appearance: none;    /* Removes default styling in Firefox */
+  appearance: none;         /* Removes default styling in modern browsers */
+  overflow: hidden;         /* Hides the scrollbar */
+}
+@layer utilities {
+  .app-bg {
+    @apply bg-[#eaf7ee] ;
+  }
+  .error{
+    @apply bg-[#fff0f1] text-[#a71a23];
+  }
+}
+
+/* Chrome, Edge, Safari */
+.custom-progress::-webkit-progress-bar {
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 10px;
+  height: 8px;
+}
+
+.custom-progress::-webkit-progress-value {
+  background-color: #22c55e; /* green-500 */
+  border-radius: 10px;
+  height: 8px;
+}
+
+/* Firefox */
+.custom-progress::-moz-progress-bar {
+  background-color: #22c55e;
+  border-radius: 10px;
+  height: 8px;
+}
+
+.container {
+  background-color: pink;
+}
