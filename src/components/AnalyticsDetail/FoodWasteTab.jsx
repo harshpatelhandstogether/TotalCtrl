@@ -13,8 +13,15 @@ import { foodWasteByCategory } from "../../services/AnalyticsDetail/FoodWaste/fo
 import { FaAngleRight } from "react-icons/fa6";
 import Chart from "../UI/Chart";
 import { foodWasteOverview } from "../../services/AnalyticsDetail/FoodWaste/foodWasteOverview";
+import FoodWasteTabSkeleton from "./Skeleton/FoodWasteTabSkeleton";
+import { useNavigate } from "react-router-dom";
+import MostWasteDetail from "./MostWasteDetail";
+import { setActiveTab } from "../../slices/AnalyticSlice";
+import { useDispatch } from "react-redux";
 
 export default function FoodWasteTab() {
+  const navigate = useNavigate();
+    const dispatch = useDispatch();
   const inventoryId = useSelector((state) => state.inventoryId.inventoryId);
   const [foodRange, setFoodRange] = useState([
     {
@@ -82,6 +89,15 @@ export default function FoodWasteTab() {
     refetchFoodWasteByCategory();
     refetchFoodWasteOverview();
   }, [foodRange, inventoryId]);
+
+  if (
+    foodWasteLoading ||
+    foodWasteByCauseLoading ||
+    mostWasteItemLoading ||
+    foodWasteByCategoryLoading
+  ) {
+    return <FoodWasteTabSkeleton />;
+  }
 
   return (
     <div className="">
@@ -184,16 +200,20 @@ export default function FoodWasteTab() {
           </div>
           <div className="my-8 w-[10px] border-b border-[#e5e7eb] w-[80%]"></div>
           <div className={`flex gap-1`}>
-            <a
-              href="#"
-              className={`text-[#208e4e] ${mostWasteItemData?.products > 0 ? "" : "cursor-not-allowed opacity-50"}`}
-              disabled={mostWasteItemData?.products > 0 ? false : true}
+            <div
+              // href="#"
+              className={`text-[#208e4e]  ${mostWasteItemData?.products.length > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+              disabled={mostWasteItemData?.products.length > 0 ? false : true}
+              onClick={() =>{ dispatch(setActiveTab("Most Waste"))
+                navigate("/analytics-detail")
+              }}
+              
             >
               See all wasted items
-            </a>
+            </div>
             <span
-              className={`pt-1.5 ${mostWasteItemData?.products > 0 ? "" : "cursor-not-allowed opacity-50"}`}
-              disabled={mostWasteItemData?.products > 0 ? false : true}
+              className={`pt-1.5 ${mostWasteItemData?.products.length > 0 ? "" : "cursor-not-allowed opacity-50"}`}
+              disabled={mostWasteItemData?.products.length > 0 ? false : true}
             >
               <FaAngleRight size={14} color="#208e4e" />
             </span>

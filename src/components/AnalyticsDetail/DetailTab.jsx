@@ -6,6 +6,7 @@ import FoodUsageTab from "./FoodUsageTab";
 import { setActiveTab } from "../../slices/AnalyticSlice";
 import { useDispatch } from "react-redux";
 import FoodWasteTab from "./FoodWasteTab";
+import MostWasteDetail from "./MostWasteDetail";
 
 export default function DetailTab() {
   const navigate = useNavigate();
@@ -75,6 +76,7 @@ export default function DetailTab() {
           <FoodUsageTab selectedInventoryId={resolvedInventoryId} />
         )}
         {activeTab === "Food Waste" && <FoodWasteTab />}
+        {activeTab === "Most Waste" && <MostWasteDetail />}
         {/* {activeTab === "Purchases" && <PurchasesTab />}
         {activeTab === "Delivery Stats" && <DeliveryStatsTab />}
         {activeTab === "Transfers" && <TransfersTab />} */}
