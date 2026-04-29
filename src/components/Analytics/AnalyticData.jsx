@@ -238,7 +238,7 @@ export default function AnalyticData() {
                   <p className="text-gray-600 py-2 text-xs">
                     Total value of checked out food
                   </p>
-                  <div className="flex items-center justify-between pt-10 text-sm">
+                  <div className="flex items-center justify-between pt-10 text-sm ">
                     <div>Used food ({totalFoodUsage.usagePercentage} %)</div>
                     <div>
                       {displayCurrency(
@@ -247,7 +247,7 @@ export default function AnalyticData() {
                       )}
                     </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                     <div
                       className="bg-[#66c888] h-1.5 rounded-full"
                       style={{ width: `${totalFoodUsage.usagePercentage}%` }}
@@ -262,7 +262,7 @@ export default function AnalyticData() {
                       )}
                     </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                     <div
                       className="bg-[#66c888] h-1.5 rounded-full"
                       style={{ width: `${totalFoodUsage.wastePercentage}%` }}
@@ -345,7 +345,9 @@ export default function AnalyticData() {
                   <div
                     className={`text-[#208e4e] pt-10  font-semibold ${Number(item?.totalPurchases) < 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                     disabled={Number(item?.totalPurchases) < 1}
-                    onClick={() => navigate("/analytics-detail")}
+                    onClick={() => {
+                      dispatch(setActiveTab("Purchases"));
+                      navigate("/analytics-detail")}}
                   >
                     View details{" "}
                     <MdOutlineKeyboardArrowRight size={20} className="inline" />

@@ -1,12 +1,13 @@
 import React from "react";
 
-export default function ProgressBar({className="" , width}) {
+export default function ProgressBar({ className = "", width, color }) {
   return (
-    <div className={` bg-gray-200 rounded-full h-1.5 ${className}`}>
+    <div className={`bg-gray-200 rounded-full ${className}`}>
       <div
-        className={`bg-[#66c888] h-1.5 rounded-full ${className}`}
+        className="h-full rounded-full"
         style={{
-          width: `${width}`,
+          width,
+          backgroundColor: color || "#66c888",
         }}
       ></div>
     </div>

@@ -69,9 +69,11 @@ export default function AddItemModal({
   } = useApi(fetchSearchProduct, [searchInput, selectedInventoryId], {
     immediate: false,
   });
+  console.log("Search Product Results:", searchProduct, "for input:", searchInput);
   useEffect(() => {
     if (searchInput) {
       refetchSearchProduct(searchInput);
+      
     }
   }, [searchInput]);
 
