@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import DatePicker from "../UI/DatePicker";
 import { useState } from "react";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 import ProgressBar from "../UI/ProgressBar";
 import { totalFoodWaste } from "../../services/AnalyticsDetail/FoodWaste/totalFoodWaste";
 import { useApi } from "../../hooks/useApi";
@@ -18,68 +18,59 @@ import { useNavigate } from "react-router-dom";
 import MostWasteDetail from "./MostWasteDetail";
 import { setActiveTab } from "../../slices/AnalyticSlice";
 import { useDispatch } from "react-redux";
+import { setFoodRange } from "../../slices/AnalyticSlice";
 
 export default function FoodWasteTab() {
   const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const inventoryId = useSelector((state) => state.inventoryId.inventoryId);
-  const [foodRange, setFoodRange] = useState([
-    {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
-      key: "selection",
-    },
-  ]);
+  console.log("Selected Inventory ID in FoodWasteTab:", inventoryId);
 
+  const foodRange = useSelector((state) => state.analytic.byKey["foodrange"]);
+  console.log("Food range in FoodWasteTab:", foodRange);
+
+  const DATE_FORMAT = "yyyy-MM-dd";
+
+  const startDate =
+    foodRange?.startDate ?? format(startOfMonth(new Date()), DATE_FORMAT);
+  const endDate =
+    foodRange?.endDate ?? format(endOfMonth(new Date()), DATE_FORMAT);
+
+  const parsedRange = {
+    ...foodRange,
+    startDate: startDate,
+    endDate: endDate,
+  };
   const {
     data: foodWasteData,
     loading: foodWasteLoading,
     refetch: refetchFoodWaste,
-  } = useApi(() =>
-    totalFoodWaste(inventoryId, foodRange[0].startDate, foodRange[0].endDate),
-  );
+  } = useApi(() => totalFoodWaste(inventoryId, startDate, endDate));
   console.log("Food waste data:", foodWasteData);
 
   const {
     data: foodWasteByCauseData,
     loading: foodWasteByCauseLoading,
     refetch: refetchFoodWasteByCause,
-  } = useApi(() =>
-    foodWasteByCause(inventoryId, foodRange[0].startDate, foodRange[0].endDate),
-  );
+  } = useApi(() => foodWasteByCause(inventoryId, startDate, endDate));
   console.log("Food waste by cause data:", foodWasteByCauseData);
 
   const {
     data: mostWasteItemData,
     loading: mostWasteItemLoading,
     refetch: refetchMostWasteItem,
-  } = useApi(() =>
-    mostWasteItem(inventoryId, foodRange[0].startDate, foodRange[0].endDate),
-  );
+  } = useApi(() => mostWasteItem(inventoryId, startDate, endDate));
   console.log("Most waste item data:", mostWasteItemData);
 
   const {
     data: foodWasteByCategoryData,
     loading: foodWasteByCategoryLoading,
     refetch: refetchFoodWasteByCategory,
-  } = useApi(() =>
-    foodWasteByCategory(
-      inventoryId,
-      foodRange[0].startDate,
-      foodRange[0].endDate,
-    ),
-  );
+  } = useApi(() => foodWasteByCategory(inventoryId, startDate, endDate));
   console.log("Food waste by category data:", foodWasteByCategoryData);
 
   const { data: foodWasteOverviewData, refetch: refetchFoodWasteOverview } =
-    useApi(() =>
-      foodWasteOverview(
-        inventoryId,
-        foodRange[0].startDate,
-        foodRange[0].endDate,
-        foodRange,
-      ),
-    );
+    useApi(() => foodWasteOverview(inventoryId, startDate, endDate, foodRange));
   console.log("Food waste overview data:", foodWasteOverviewData);
 
   useEffect(() => {
@@ -109,9 +100,16 @@ export default function FoodWasteTab() {
           </button>
 
           <DatePicker
-            value={foodRange}
-            onChange={setFoodRange}
-            className=" py-2"
+            value={parsedRange}
+            onChange={(newRange) =>
+              dispatch(
+                setFoodRange({
+                  key: "foodrange",
+                  startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                  endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                }),
+              )
+            }
           />
         </div>
       </div>
@@ -166,37 +164,36 @@ export default function FoodWasteTab() {
           <span className="text-lg font-semibold">Top most wasted items</span>
           <div className="my-8 w-[10px] border-b border-[#e5e7eb] w-[80%]"></div>
           <div className="w-[80%]">
-            
-              <table className="w-full text-left mt-4">
-                {mostWasteItemData?.products?.slice(0, 4).map((item, index) => (
-                  <tr className="text-sm" key={index}>
-                    <td className="py-3">{item.name}</td>
-                    <td>
-                      {item.totalWasteQty}
-                      {item.totalWasteQty > 1
-                        ? ` ${item.stockTakingUnitPlural}`
-                        : `${item.stockTakingUnit}`}
-                    </td>
-                    <td className="text-right">
-                      {displayCurrency(
-                        item.totalWasteValue,
-                        foodWasteData?.currency,
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </table>
-            
-              { mostWasteItemData?.products?.length === 0 && (
-                <div className="py-10">
-                  <div className="text-xl font-semibold text-center">
-                    No Wasted Items
-                  </div>
-                  <div className="text-sm text-gray-500 text-center">
-                    No wasted items found for the selected period.
+            <table className="w-full text-left mt-4">
+              {mostWasteItemData?.products?.slice(0, 4).map((item, index) => (
+                <tr className="text-sm" key={index}>
+                  <td className="py-3">{item.name}</td>
+                  <td>
+                    {item.totalWasteQty}
+                    {item.totalWasteQty > 1
+                      ? ` ${item.stockTakingUnitPlural}`
+                      : `${item.stockTakingUnit}`}
+                  </td>
+                  <td className="text-right">
+                    {displayCurrency(
+                      item.totalWasteValue,
+                      foodWasteData?.currency,
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </table>
+
+            {mostWasteItemData?.products?.length === 0 && (
+              <div className="py-10">
+                <div className="text-xl font-semibold text-center">
+                  No Wasted Items
                 </div>
-              </div>)}
-            
+                <div className="text-sm text-gray-500 text-center">
+                  No wasted items found for the selected period.
+                </div>
+              </div>
+            )}
           </div>
           <div className="my-8 w-[10px] border-b border-[#e5e7eb] w-[80%]"></div>
           <div className={`flex gap-1`}>
@@ -204,10 +201,10 @@ export default function FoodWasteTab() {
               // href="#"
               className={`text-[#208e4e]  ${mostWasteItemData?.products.length > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
               disabled={mostWasteItemData?.products.length > 0 ? false : true}
-              onClick={() =>{ dispatch(setActiveTab("Most Waste"))
-                navigate("/analytics-detail")
+              onClick={() => {
+                dispatch(setActiveTab("Most Waste"));
+                navigate("/analytics-detail");
               }}
-              
             >
               See all wasted items
             </div>
@@ -244,7 +241,14 @@ export default function FoodWasteTab() {
                 </div>
               ))}
           <div className="flex gap-1 mt-14">
-            <a href="#" className="text-[#208e4e] ">
+            <a
+              href="#"
+              className="text-[#208e4e] "
+              onClick={() => {
+                dispatch(setActiveTab("Waste by Category"));
+                navigate("/analytics-detail");
+              }}
+            >
               See all categories
             </a>
             <span className="pt-1.5">
@@ -258,7 +262,19 @@ export default function FoodWasteTab() {
         <div className="flex item-center justify-between">
           <h1 className="text-lg font-semibold">Overview of wasted food</h1>
           <div>
-            <DatePicker value={foodRange} onChange={setFoodRange} />
+            {/* <DatePicker value={foodRange} onChange={setFoodRange} /> */}
+            <DatePicker
+              value={parsedRange}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "foodrange",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
+            />
           </div>
         </div>
         <div>

@@ -5,7 +5,7 @@ export const mostWasteItem = async (inventoryId, fromDate, toDate) => {
   try {
     const response = await api.get('/analytics/food-waste/most-wasted-items', {
       params: {
-        inventoryId,
+        inventoryId: inventoryId,
         fromDate: format(new Date(fromDate), 'yyyy-MM-dd'),
         toDate: format(new Date(toDate), 'yyyy-MM-dd'),     
         language: 'eg',

@@ -43,23 +43,39 @@ const customStaticRanges = createStaticRanges([
   },
 ]);
 
-const getLabelForRange = (range) => {
-  const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
+const getLabelForRange = (rangeInput) => {
+  if (!rangeInput) return "Select date range";
+  const range = Array.isArray(rangeInput) ? rangeInput[0] : rangeInput;
+  if (!range || !range.startDate || !range.endDate) return "Select date range";
+  const matched = defaultStaticRanges.find((r) => {
+    try {
+      return r.isSelected(range);
+    } catch (e) {
+      return false;
+    }
+  });
   return matched
     ? matched.label
-    : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
+    : `${range.startDate.toLocaleDateString ? range.startDate.toLocaleDateString() : range.startDate} - ${range.endDate.toLocaleDateString ? range.endDate.toLocaleDateString() : range.endDate}`;
 };
 
-export default function DatePicker({ value, onChange ,months }) {
+export default function DatePicker({ value, onChange, months }) {
+  const isValueArray = Array.isArray(value);
+  const normalizeToArray = (v) => {
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    return [{ ...(v || {}), key: v?.key || "selection" }];
+  };
+
   const [showPicker, setShowPicker] = useState(false);
-  const [tempRange, setTempRange] = useState(value);
+  const [tempRange, setTempRange] = useState(normalizeToArray(value));
 
   return (
     <div className="relative">
       <div
         className="border border-gray-300 rounded-md px-4 py-[6px] flex items-center gap-14 cursor-pointer"
         onClick={() => {
-          setTempRange(value);          // reset temp on open
+          setTempRange(normalizeToArray(value)); // reset temp on open
           setShowPicker((prev) => !prev);
         }}
       >
@@ -107,7 +123,11 @@ export default function DatePicker({ value, onChange ,months }) {
             <button
               className="px-4 py-1 text-sm rounded bg-[#23a956] text-white font-semibold"
               onClick={() => {
-                onChange(tempRange);    // lift state up to parent
+                // lift state up to parent in the same shape as input
+                if (onChange) {
+                  if (isValueArray) onChange(tempRange);
+                  else onChange(tempRange[0]);
+                }
                 setShowPicker(false);
               }}
             >
