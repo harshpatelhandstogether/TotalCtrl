@@ -263,7 +263,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
             <div className="text-2xl px-4 mt-2">
               {displayCurrency(
                 Math.round(checkInValueByCategory?.TotalValue),
-                checkInValueByCategory?.Currency,
+                checkInValueByCategory?.Data?.[0]?.currency,
               )}
             </div>
           )}
@@ -318,7 +318,10 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </div>
           {checkOutValueByCategory?.TotalValue > 0 && (
             <div className="text-2xl px-4 mt-2">
-              {Math.round(checkOutValueByCategory?.TotalValue)}
+              {displayCurrency(
+                Math.round(checkOutValueByCategory?.TotalValue),
+                checkOutValueByCategory?.Data?.[0]?.currency,
+              )}
             </div>
           )}
           {checkOutValueByCategory?.Data?.length > 0 ? (

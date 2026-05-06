@@ -13,7 +13,7 @@ const initialState = {
   activeTab: "Inventory Stats",
   byKey: {
     foodrange: getCurrentMonthRange(),
-     
+    Purchases: getCurrentMonthRange(),
   },
 };
 

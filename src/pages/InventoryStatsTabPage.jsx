@@ -18,9 +18,17 @@ import DatePicker from "../components/UI/DatePicker";
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import InventoryStatsTabSkeleton from "./InventoryStatsTabSkeleton";
+import { biggestOrder } from "../services/AnalyticsDetail/Purchases/biggestOrder";
+import { setFoodRange } from "../slices/AnalyticSlice";
+import { biggestSupplier } from "../services/AnalyticsDetail/Purchases/biggestSupplier";
+import { priceVariation } from "../services/AnalyticsDetail/Purchases/priceVariation";
+import { format } from "date-fns";
+import { FaCaretUp, FaCaretDown } from "react-icons/fa6";
+
+const DATE_FORMAT = "yyyy-MM-dd";
 
 export default function InventoryStatsTabPage() {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { name } = useParams();
   const navigate = useNavigate();
   const inventoryList = useSelector((state) => state.inventoryId.inventoryList);
@@ -29,6 +37,22 @@ export default function InventoryStatsTabPage() {
   const selectedInventoryId = useSelector(
     (state) => state.inventoryId.inventoryId,
   );
+  const purchaseRange = useSelector(
+    (state) => state.analytic.byKey["Purchases"],
+  );
+  console.log("Purchase Range:", purchaseRange);
+
+  const startDate =
+    purchaseRange?.startDate ?? format(startOfMonth(new Date()), DATE_FORMAT);
+  const endDate =
+    purchaseRange?.endDate ?? format(endOfMonth(new Date()), DATE_FORMAT);
+
+  const parsedRange = {
+    ...purchaseRange,
+    startDate: startDate,
+    endDate: endDate,
+  };
+
   const options = (inventoryList || []).map((inv) => ({
     value: inv.id,
     label: inv.name,
@@ -139,26 +163,55 @@ export default function InventoryStatsTabPage() {
   );
   console.log("checkOutValueByCategory", checkOutValueByCategory);
 
+  const {
+    data: biggestOrderData,
+    loading: biggestOrderLoading,
+    refetch: biggestOrderRefetch,
+    error: biggestOrderError,
+  } = useApi(() => biggestOrder(selectedInventoryId, startDate, endDate));
+  console.log("Biggest order data in :", biggestOrderData);
+
+  const {
+    data: biggestSupplierData,
+    loading: biggestSupplierLoading,
+    refetch: biggestSupplierRefetch,
+    error: biggestSupplierError,
+  } = useApi(() => biggestSupplier(selectedInventoryId, startDate, endDate));
+  console.log("Biggest supplier data in PurchaseTab:", biggestSupplierData);
+
+  const {
+    data: priceVariationData,
+    loading: priceVariationLoading,
+    refetch: priceVariationRefetch,
+    error: priceVariationError,
+  } = useApi(() => priceVariation(selectedInventoryId, startDate, endDate));
+  console.log("Price variation data in PurchaseTab:", priceVariationData);
+
   useEffect(() => {
     refetchValueByStock();
     refetchValueByCategory();
     refetchCheckInValueByCategory();
     refetchCheckOutValueByCategory();
-    
-  }, [selectedInventoryId, checkInRange, checkoutRange ]);
+    biggestSupplierRefetch();
+    biggestOrderRefetch();
+    priceVariationRefetch();
+  }, [selectedInventoryId, checkInRange, checkoutRange, purchaseRange]);
 
   if (
     inventoryLoading ||
     valueByStockLoading ||
     valueByCategoryLoading ||
     checkInValueByCategoryLoading ||
-    checkOutValueByCategoryLoading
+    checkOutValueByCategoryLoading ||
+    biggestOrderLoading ||
+    biggestSupplierLoading ||
+    priceVariationLoading
   ) {
     return <InventoryStatsTabSkeleton />;
   }
-//   useEffect(() => {
-//     dispatch(setInventoryId(options[0]?.value || null));
-//   },[]);
+  //   useEffect(() => {
+  //     dispatch(setInventoryId(options[0]?.value || null));
+  //   },[]);
 
   return (
     <div>
@@ -255,7 +308,13 @@ export default function InventoryStatsTabPage() {
           >
             <FaChevronLeft size={20} className="text-[#a1a1a5]" />
             <h1 className="font-source text-black text-md font-semibold">
-              Inventory
+              {(name === "byStock" && "Inventory") ||
+                (name === "byCategory" && "Inventory") ||
+                (name === "byCheckInCategory" && "Inventory") ||
+                (name === "byCheckOutCategory" && "Inventory")}
+              {(name === "biggestorders" && "Purchases") ||
+                (name === "biggestsuppliers" && "Purchases") ||
+                (name === "PriceVariations" && "Purchases")}
             </h1>
           </div>
         </nav>
@@ -292,6 +351,57 @@ export default function InventoryStatsTabPage() {
             </div>
           </>
         )}
+        {name === "biggestorders" && (
+          <>
+            <h1 className="text-xl font-semibold">Biggest Orders</h1>
+            <DatePicker
+              value={parsedRange}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "purchases",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
+            />
+          </>
+        )}
+        {name === "biggestsuppliers" && (
+          <>
+            <h1 className="text-xl font-semibold">Biggest Suppliers</h1>
+            <DatePicker
+              value={parsedRange}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "purchases",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
+            />
+          </>
+        )}
+        {name === "PriceVariations" && (
+          <>
+            <h1 className="text-xl font-semibold">Price Variations</h1>
+            <DatePicker
+              value={parsedRange}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "purchases",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
+            />
+          </>
+        )}
       </div>
       <div className="overflow-x-auto overflow-y-auto overscroll-auto h-[calc(800px-50px)]">
         {name === "byStock" &&
@@ -326,6 +436,138 @@ export default function InventoryStatsTabPage() {
               <div>{displayCurrency(item?.total, item?.currency)}</div>
             </div>
           ))}
+        {name === "biggestorders" &&
+          biggestOrderData?.Data?.map((item, index) => (
+            <div className="flex mx-12 py-3 text-sm ">
+              <h1 className="w-[5%] text-[#9a9eaf]">{index + 1}.</h1>
+              <div className="w-[80%]">
+                {item.supplierName || "Not Specified"}
+                <div className="text-[#6b6b6f] text-xs">#{item.number}</div>
+              </div>
+              <div className="">
+                {displayCurrency(item?.total, item?.currency)}
+              </div>
+            </div>
+          ))}
+        {name === "biggestsuppliers" &&
+          biggestSupplierData?.Data?.map((item, index) => (
+            <div className="flex mx-12 py-3 text-sm ">
+              <h1 className="w-[5%] text-[#9a9eaf]">{index + 1}.</h1>
+              <div className="w-[80%]">{item.name || "Not Specified"}</div>
+              <div className="">
+                {displayCurrency(item?.total, item?.currency)}
+              </div>
+            </div>
+          ))}
+        {name === "PriceVariations" &&
+          
+            <div className="flex mx-12 py-3 text-sm gap-15">
+              <div className="w-[50%]">
+                <div className="">
+                  <table className="w-full text-left mt-4">
+                    {priceVariationData?.increase
+                      ?.map((item, index) => (
+                        <tr
+                          className="text-sm border-b border-[#e5e7eb] nth-last-1:border-b-0"
+                          key={index}
+                        >
+                          <td className="py-5 ">
+                            <div className="flex-col ">
+                              {item.name}
+                              <div>
+                                <span className="text-[#6b6b6f]">
+                                  {item.supplierName}
+                                </span>
+                              </div>
+                              <div className="h-5"></div>
+                            </div>
+                          </td>
+                          <td className="text-right ">
+                            <div className="flex-col ">
+                              {displayCurrency(
+                                item.pricePerPurchaseUnit,
+                                item?.currency,
+                              )}
+                              <div className="text-[#6b6b6f]">
+                                per {item.measurementUnitName}
+                              </div>
+                              <div className="text-[#e2232e] font-semibold text-xs">
+                                <FaCaretUp className="inline" />
+                                {item.variation.toFixed(2)}%
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </table>
+                 
+
+                  {priceVariationData?.increase?.length === 0 && (
+                    <div className="py-10">
+                      <div className="text-xl font-semibold text-center">
+                        No Wasted Items
+                      </div>
+                      <div className="text-sm text-gray-500 text-center">
+                        No wasted items found for the selected period.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="w-[50%]">
+                <div className="">
+                  <table className="w-full text-left mt-4">
+                    {priceVariationData?.decrease
+                      ?.map((item, index) => (
+                        <tr
+                          className="text-sm border-b border-[#e5e7eb] nth-last-1:border-b-0"
+                          key={index}
+                        >
+                          <td className="py-5 items-start ">
+                            <div className="flex-col ">
+                              {item.name}
+                              <div>
+                                <span className="text-[#6b6b6f]">
+                                  {item.supplierName}
+                                </span>
+                              </div>
+                              <div className="h-5"></div>
+                            </div>
+                          </td>
+                          <td className="text-right ">
+                            <div className="flex-col ">
+                              {displayCurrency(
+                                item.pricePerPurchaseUnit,
+                                item?.currency,
+                              )}
+                              <div className="text-[#6b6b6f]">
+                                per {item.measurementUnitName}
+                              </div>
+                              <div className="text-[#228f50] font-semibold text-xs">
+                                <FaCaretDown className="inline" />
+                                {item.variation.toFixed(2)}%
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </table>
+                 
+
+                  {priceVariationData?.increase?.length === 0 && (
+                    <div className="py-10">
+                      <div className="text-xl font-semibold text-center">
+                        No Wasted Items
+                      </div>
+                      <div className="text-sm text-gray-500 text-center">
+                        No wasted items found for the selected period.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          }
       </div>
     </div>
   );
