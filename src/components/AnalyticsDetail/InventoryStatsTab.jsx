@@ -14,6 +14,10 @@ import { fetchCheckOutValueByCategory } from "../../services/AnalyticsDetail/Inv
 import InventoryStateTabSkeleton from "./Skeleton/InventoryStateTabSkeleton";
 import { Skeleton } from "boneyard-js/react";
 import DatePicker from "../UI/DatePicker";
+import { useSelector } from "react-redux";
+import { format } from "date-fns";
+import { useDispatch } from "react-redux";
+import { setFoodRange } from "../../slices/AnalyticSlice";
 
 // function ValueByStock({ valueByStock, inventoryTotal , valueByStockLoading }) {
 //     const rows = valueByStockLoading
@@ -67,6 +71,31 @@ import DatePicker from "../UI/DatePicker";
 // }
 
 export default function InventoryStatsTab({ selectedInventoryId }) {
+  const dispatch = useDispatch();
+  const checkIn = useSelector((state) => state.analytic.byKey["invCheckIn"]);
+  const checkOut = useSelector((state) => state.analytic.byKey["invCheckOut"]);
+  const DATE_FORMAT = "yyyy-MM-dd";
+
+  const startDate =
+    checkIn?.startDate ?? format(startOfMonth(new Date()), DATE_FORMAT);
+  const endDate =
+    checkIn?.endDate ?? format(endOfMonth(new Date()), DATE_FORMAT);
+
+  const startDates =
+    checkOut?.startDate ?? format(startOfMonth(new Date()), DATE_FORMAT);
+  const endDates =
+    checkOut?.endDate ?? format(endOfMonth(new Date()), DATE_FORMAT);
+
+  const parsedRange = {
+    ...checkIn,
+    startDate: startDate,
+    endDate: endDate,
+  };
+  const parsedRanges = {
+    ...checkOut,
+    startDate: startDates,
+    endDate: endDates,
+  };
   const {
     data: inventoryTotal,
     loading: inventoryTotalLoading,
@@ -89,20 +118,20 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetch: refetchValueByCategory,
   } = useApi(() => fetchValueByCategory(selectedInventoryId, 6, 0));
 
-  const [checkInRange, setCheckInRange] = useState([
-    {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
-      key: "selection",
-    },
-  ]);
-  const [checkoutRange, setCheckoutRange] = useState([
-    {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
-      key: "selection",
-    },
-  ]);
+  // const [checkInRange, setCheckInRange] = useState([
+  //   {
+  //     startDate: startOfMonth(new Date()),
+  //     endDate: endOfMonth(new Date()),
+  //     key: "selection",
+  //   },
+  // ]);
+  // const [checkoutRange, setCheckoutRange] = useState([
+  //   {
+  //     startDate: startOfMonth(new Date()),
+  //     endDate: endOfMonth(new Date()),
+  //     key: "selection",
+  //   },
+  // ]);
 
   const {
     data: checkInValueByCategory,
@@ -110,13 +139,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     error: checkInValueByCategoryError,
     refetch: refetchCheckInValueByCategory,
   } = useApi(() =>
-    fetchCheckInValueByCategory(
-      selectedInventoryId,
-      6,
-      0,
-      checkInRange[0].startDate,
-      checkInRange[0].endDate,
-    ),
+    fetchCheckInValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
   );
   console.log("checkInValueByCategory", checkInValueByCategory);
 
@@ -126,13 +149,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     error: checkOutValueByCategoryError,
     refetch: refetchCheckOutValueByCategory,
   } = useApi(() =>
-    fetchCheckOutValueByCategory(
-      selectedInventoryId,
-      6,
-      0,
-      checkoutRange[0].startDate,
-      checkoutRange[0].endDate,
-    ),
+    fetchCheckOutValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
   );
   console.log("checkOutValueByCategory", checkOutValueByCategory);
 
@@ -142,7 +159,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetchValueByCategory();
     refetchCheckInValueByCategory();
     refetchCheckOutValueByCategory();
-  }, [selectedInventoryId, checkInRange, checkoutRange]);
+  }, [selectedInventoryId, checkIn , checkOut]);
 
   if (
     inventoryTotalLoading ||
@@ -253,9 +270,22 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </label>
           <div className="flex items-start justify-between px-4 mt-10">
             <h1>Check in</h1>
-            <DatePicker
+            {/* <DatePicker
               value={checkInRange}
               onChange={setCheckInRange}
+              months={1}
+            /> */}
+            <DatePicker
+              value={parsedRange}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "invCheckIn",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
               months={1}
             />
           </div>
@@ -310,9 +340,22 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
           </label>
           <div className="flex items-start justify-between px-4 mt-10">
             <h1>Check out</h1>
-            <DatePicker
+            {/* <DatePicker
               value={checkoutRange}
               onChange={setCheckoutRange}
+              months={1}
+            /> */}
+            <DatePicker
+              value={parsedRanges}
+              onChange={(newRange) =>
+                dispatch(
+                  setFoodRange({
+                    key: "invCheckOut",
+                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                  }),
+                )
+              }
               months={1}
             />
           </div>

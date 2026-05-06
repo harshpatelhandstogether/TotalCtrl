@@ -26,104 +26,40 @@ import { displayCurrency } from "../../utils/formatCurrency";
 import { fetchFoodUsageProduct } from "../../services/AnalyticsDetail/FoodUsage/fetchFoodUsageProduct";
 import FoodUsageTabSkeleton from "./Skeleton/FoodUsageTab";
 import DatePicker from "../UI/DatePicker";
+import { useDispatch, useSelector } from "react-redux";
+import { format } from "date-fns";
+import { setFoodRange } from "../../slices/AnalyticSlice";
 
 export default function FoodUsageTab({ selectedInventoryId }) {
-  // const [showFoodPicker, setShowFoodPicker] = useState(false);
-  // const [showPurchasePicker, setShowPurchasePicker] = useState(false);
-
- 
-
-  // const customStaticRanges = createStaticRanges([
+  // const [foodRange, setFoodRange] = useState([
   //   {
-  //     label: "Today",
-  //     range: () => ({
-  //       startDate: new Date(),
-  //       endDate: new Date(),
-  //     }),
-  //   },
-  //   {
-  //     label: "Yesterday",
-  //     range: () => ({
-  //       startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-  //       endDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-  //     }),
-  //   },
-  //   {
-  //     label: "This Week",
-  //     range: () => ({
-  //       startDate: new Date(
-  //         new Date().setDate(new Date().getDate() - new Date().getDay()),
-  //       ),
-  //       endDate: new Date(),
-  //     }),
-  //   },
-  //   {
-  //     label: "Last Week",
-  //     range: () => ({
-  //       startDate: new Date(
-  //         new Date().setDate(new Date().getDate() - new Date().getDay() - 7),
-  //       ),
-  //       endDate: new Date(
-  //         new Date().setDate(new Date().getDate() - new Date().getDay() - 1),
-  //       ),
-  //     }),
-  //   },
-  //   {
-  //     label: "This Month",
-  //     range: () => ({
-  //       startDate: startOfMonth(new Date()),
-  //       endDate: endOfMonth(new Date()),
-  //     }),
-  //   },
-  //   {
-  //     label: "Last Month",
-  //     range: () => ({
-  //       startDate: startOfMonth(subMonths(new Date(), 1)),
-  //       endDate: endOfMonth(subMonths(new Date(), 1)),
-  //     }),
-  //   },
-  //   {
-  //     label: "This Year", // ← adds full current year range
-  //     range: () => ({
-  //       startDate: startOfYear(new Date()),
-  //       endDate: endOfYear(new Date()),
-  //     }),
-  //   },
-  //   {
-  //     label: "Last Year", // ← adds full last year range
-  //     range: () => ({
-  //       startDate: startOfYear(subYears(new Date(), 1)),
-  //       endDate: endOfYear(subYears(new Date(), 1)),
-  //     }),
+  //     startDate: startOfMonth(new Date()),
+  //     endDate: endOfMonth(new Date()),
+  //     key: "selection",
   //   },
   // ]);
+  // const [purchaseRange, setPurchaseRange] = useState([
+  //   {
+  //     startDate: startOfMonth(new Date()),
+  //     endDate: endOfMonth(new Date()),
+  //     key: "selection",
+  //   },
+  // ]);
+  const dispatch = useDispatch();
+  const foodUsage = useSelector((state) => state.analytic.byKey["foodUsage"]);
 
-  const [foodRange, setFoodRange] = useState([
-    {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
-      key: "selection",
-    },
-  ]);
-  const [purchaseRange, setPurchaseRange] = useState([
-    {
-      startDate: startOfMonth(new Date()),
-      endDate: endOfMonth(new Date()),
-      key: "selection",
-    },
-  ]);
+  const DATE_FORMAT = "yyyy-MM-dd";
 
-  // Temp ranges (before Apply is clicked)
-  // const [tempFoodRange, setTempFoodRange] = useState(foodRange);
-  // const [tempPurchaseRange, setTempPurchaseRange] = useState(purchaseRange);
+  const startDate =
+    foodUsage?.startDate ?? format(startOfMonth(new Date()), DATE_FORMAT);
+  const endDate =
+    foodUsage?.endDate ?? format(endOfMonth(new Date()), DATE_FORMAT);
 
-  // const getLabelForRange = (range) => {
-  //   const matched = defaultStaticRanges.find((r) => r.isSelected(range[0]));
-  //   return matched
-  //     ? matched.label
-  //     : `${range[0].startDate.toLocaleDateString()} - ${range[0].endDate.toLocaleDateString()}`;
-  // };
-
+  const parsedRange = {
+    ...foodUsage,
+    startDate: startDate,
+    endDate: endDate,
+  };
   const {
     data: totalFoodUsage,
     loading: totalFoodUsageLoading,
@@ -137,28 +73,18 @@ export default function FoodUsageTab({ selectedInventoryId }) {
     loading: foodUsageDataLoading,
     error: foodUsageDataError,
     refetch: refetchFoodUsageData,
-  } = useApi(
-    fetchFoodUsageProduct,
-    [foodRange[0].startDate, foodRange[0].endDate, selectedInventoryId],
-    { immediate: true },
-  );
+  } = useApi(fetchFoodUsageProduct, [startDate, endDate, selectedInventoryId], {
+    immediate: true,
+  });
 
   useEffect(() => {
     if (!selectedInventoryId) return;
-    refetchTotalFoodUsage(
-      foodRange[0].startDate,
-      foodRange[0].endDate,
-      selectedInventoryId,
-    );
-    refetchFoodUsageData(
-      foodRange[0].startDate,
-      foodRange[0].endDate,
-      selectedInventoryId,
-    );
-  }, [selectedInventoryId, foodRange, refetchTotalFoodUsage]);
+    refetchTotalFoodUsage(startDate, endDate, selectedInventoryId);
+    refetchFoodUsageData(startDate, endDate, selectedInventoryId);
+  }, [selectedInventoryId, foodUsage, refetchTotalFoodUsage]);
 
-  if(totalFoodUsageLoading || foodUsageDataLoading) {
-    return (<FoodUsageTabSkeleton />);
+  if (totalFoodUsageLoading || foodUsageDataLoading) {
+    return <FoodUsageTabSkeleton />;
   }
   return (
     <div className="px-10 py-6">
@@ -249,7 +175,20 @@ export default function FoodUsageTab({ selectedInventoryId }) {
               </div>
             )}
           </div> */}
-          <DatePicker value={foodRange} onChange={setFoodRange}  />
+          {/* <DatePicker value={foodRange} onChange={setFoodRange}  /> */}
+          <DatePicker
+            value={parsedRange}
+            onChange={(newRange) =>
+              dispatch(
+                setFoodRange({
+                  key: "foodUsage",
+                  startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                  endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                }),
+              )
+            }
+            months={2}
+          />
         </div>
       </div>
 
@@ -344,7 +283,10 @@ export default function FoodUsageTab({ selectedInventoryId }) {
         <div className="overflow-x-auto overflow-y-auto overscroll-auto h-[600px]">
           <table className="w-[95%] border-collapse ml-[2.5%] rounded-lg ">
             {foodUsageData?.products?.map((item, index) => (
-              <tr className="border-b border-gray-200 nth-last-1:border-b-0" key={index}>
+              <tr
+                className="border-b border-gray-200 nth-last-1:border-b-0"
+                key={index}
+              >
                 <td className="p-6 text-sm text-left w-[35%]">{item.name}</td>
                 <td className="p-2 text-sm text-left w-[10%]">
                   {item.totalUseQty > 1
@@ -382,15 +324,21 @@ export default function FoodUsageTab({ selectedInventoryId }) {
               </tr>
             ))}
             <tr>
-                <div>
-                    {foodUsageData?.products?.length === 0 && (
-                        <div className="flex flex-col items-center gap-3 mt-20">
-                            <img src="" alt="No data" className="w-32 h-32 object-contain" />
-                            <h1 className=" text-2xl">No Food Usage</h1>
-                            <h2 className="text-[#9e9ea1] text-lg">No food usage data available for the selected date range.</h2>
-                        </div>
-                    )}  
-                </div>
+              <div>
+                {foodUsageData?.products?.length === 0 && (
+                  <div className="flex flex-col items-center gap-3 mt-20">
+                    <img
+                      src=""
+                      alt="No data"
+                      className="w-32 h-32 object-contain"
+                    />
+                    <h1 className=" text-2xl">No Food Usage</h1>
+                    <h2 className="text-[#9e9ea1] text-lg">
+                      No food usage data available for the selected date range.
+                    </h2>
+                  </div>
+                )}
+              </div>
             </tr>
           </table>
         </div>

@@ -12,8 +12,11 @@ const getCurrentMonthRange = () => ({
 const initialState = {
   activeTab: "Inventory Stats",
   byKey: {
+    invCheckIn: getCurrentMonthRange(),
+    invCheckOut: getCurrentMonthRange(),
     foodrange: getCurrentMonthRange(),
     Purchases: getCurrentMonthRange(),
+    foodUsage: getCurrentMonthRange(),
   },
 };
 
