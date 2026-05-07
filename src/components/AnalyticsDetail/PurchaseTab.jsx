@@ -42,7 +42,7 @@ export default function PurchaseTab() {
     loading: totalPurchasesLoading,
     refetch: totalPurchasesRefetch,
     error: totalPurchasesError,
-  } = useApi(() => totalPurchases(inventoryId, startDate, endDate));
+  } = useApi(() => totalPurchases(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Total purchases data in PurchaseTab:", totalPurchasesData);
 
   const {
@@ -50,7 +50,7 @@ export default function PurchaseTab() {
     loading: biggestOrderLoading,
     refetch: biggestOrderRefetch,
     error: biggestOrderError,
-  } = useApi(() => biggestOrder(inventoryId, startDate, endDate));
+  } = useApi(() => biggestOrder(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Biggest order data in PurchaseTab:", biggestOrderData);
 
   const {
@@ -58,7 +58,7 @@ export default function PurchaseTab() {
     loading: biggestSupplierLoading,
     refetch: biggestSupplierRefetch,
     error: biggestSupplierError,
-  } = useApi(() => biggestSupplier(inventoryId, startDate, endDate));
+  } = useApi(() => biggestSupplier(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Biggest supplier data in PurchaseTab:", biggestSupplierData);
 
   const {
@@ -66,15 +66,15 @@ export default function PurchaseTab() {
     loading: priceVariationLoading,
     refetch: priceVariationRefetch,
     error: priceVariationError,
-  } = useApi(() => priceVariation(inventoryId, startDate, endDate));
+  } = useApi(() => priceVariation(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Price variation data in PurchaseTab:", priceVariationData);
 
-  React.useEffect(() => {
-    totalPurchasesRefetch();
-    biggestOrderRefetch();
-    biggestSupplierRefetch();
-    priceVariationRefetch();
-  }, [foodRange, inventoryId]);
+  // React.useEffect(() => {
+  //   totalPurchasesRefetch();
+  //   biggestOrderRefetch();
+  //   biggestSupplierRefetch();
+  //   priceVariationRefetch();
+  // }, [foodRange, inventoryId]);
 
   if (
     totalPurchasesLoading ||

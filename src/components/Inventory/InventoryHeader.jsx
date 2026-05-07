@@ -63,9 +63,9 @@ export default function InventoryHeader({
 
   // const dispatch = useDispatch();
 
-  if (inventoryLoading) {
-    return <NavbarSkeleton />;
-  }
+  // if (inventoryLoading) {
+  //   return <NavbarSkeleton />;
+  // }
 
   return (
     <Header title="Inventories" className="text-2xl">
@@ -146,7 +146,7 @@ export default function InventoryHeader({
             }),
           }}
         /> */}
-        <SelectDropdown  DataList={inventoryList} Loading={inventoryLoading} Error={inventoryError} onChange={onInventoryChange} />
+        <SelectDropdown  DataList={inventoryList} Loading={inventoryLoading} Error={inventoryError} />
 
         {inventoryError && (
           <span className="text-red-500 text-sm">

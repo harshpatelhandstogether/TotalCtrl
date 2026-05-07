@@ -21,14 +21,14 @@ export function useApi(apiFunc, params = [], options = { immediate: true }) {
     } finally {
       setLoading(false);
     }
-  }, [apiFunc]);
+  }, [apiFunc ]);
 
   useEffect(() => {
     console.log("useApi useEffect triggered with params:", params, "and options:", options);
     if (options.immediate) {
       execute(...params);
     }
-  }, []);
+  }, [...params]);
 
   return { data, loading, error, refetch: execute , setData };
 }

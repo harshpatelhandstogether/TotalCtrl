@@ -3,6 +3,7 @@ import Select, { components } from "react-select";
 import { useDispatch, useSelector } from "react-redux";
 import { setInventoryId } from "../../slices/InventorySlice";
 import checked from "/check.png";
+import { useState } from "react";
 
 export default function SelectDropdown({
   DataList,
@@ -14,7 +15,10 @@ export default function SelectDropdown({
   loading,
   error,
   options: explicitOptions,
+  value: externalValue,
+  placeholder = "Select Inventory",
 }) {
+  const [selectedItemInventory, setSelectedItemInventory] = useState(null);
   const dispatch = useDispatch();
   const selectedInventoryId = useSelector(
     (state) => state.inventoryId.inventoryId,
@@ -68,20 +72,21 @@ export default function SelectDropdown({
     );
   };
   return (
-  
     <div>
       <Select
         className={`w-[350px] ${className}`}
         isDisabled={resolvedLoading}
-        options={
-          resolvedError ? [] : hasPermissions ? groupedOptions : options
-        }
+        options={resolvedError ? [] : hasPermissions ? groupedOptions : options}
         onChange={(selectedOption) => {
           if (!selectedOption) return;
-          onChange?.(selectedOption);
-          dispatch(setInventoryId(selectedOption.value));
+          if (onChange) {
+            onChange(selectedOption); // local usage — just call parent handler
+          } else {
+            dispatch(setInventoryId(selectedOption.value)); // global inventory selector
+            onInventoryChange?.();
+          }
         }}
-        placeholder="Select Inventory"
+        placeholder={placeholder}
         components={{
           IndicatorSeparator: () => null,
           Option: CustomOption,
@@ -89,7 +94,9 @@ export default function SelectDropdown({
         value={
           resolvedLoading
             ? null
-            : options.find((option) => option.value === selectedInventoryId)
+            : externalValue !== undefined
+              ? externalValue
+              : options.find((option) => option.value === selectedInventoryId)
         }
         theme={(theme) => ({
           ...theme,

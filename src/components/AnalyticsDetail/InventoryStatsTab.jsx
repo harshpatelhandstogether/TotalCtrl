@@ -101,7 +101,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: inventoryTotalLoading,
     error: inventoryTotalError,
     refetch: refetchInventoryTotal,
-  } = useApi(() => fetchInventoryTotal(selectedInventoryId));
+  } = useApi(() => fetchInventoryTotal(selectedInventoryId), [selectedInventoryId]);
   console.log("inventoryTotal", inventoryTotal);
 
   const {
@@ -109,14 +109,14 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: valueByStockLoading,
     error: valueByStockError,
     refetch: refetchValueByStock,
-  } = useApi(() => fetchValueByStock(selectedInventoryId, 6, 0));
+  } = useApi(() => fetchValueByStock(selectedInventoryId, 6, 0), [selectedInventoryId]);
 
   const {
     data: valueByCategory,
     loading: valueByCategoryLoading,
     error: valueByCategoryError,
     refetch: refetchValueByCategory,
-  } = useApi(() => fetchValueByCategory(selectedInventoryId, 6, 0));
+  } = useApi(() => fetchValueByCategory(selectedInventoryId, 6, 0), [selectedInventoryId]);
 
   // const [checkInRange, setCheckInRange] = useState([
   //   {
@@ -140,6 +140,7 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetch: refetchCheckInValueByCategory,
   } = useApi(() =>
     fetchCheckInValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
+    [ selectedInventoryId, startDate, endDate]
   );
   console.log("checkInValueByCategory", checkInValueByCategory);
 
@@ -150,16 +151,17 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     refetch: refetchCheckOutValueByCategory,
   } = useApi(() =>
     fetchCheckOutValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
+    [selectedInventoryId, startDate, endDate]
   );
   console.log("checkOutValueByCategory", checkOutValueByCategory);
 
-  useEffect(() => {
-    refetchInventoryTotal();
-    refetchValueByStock();
-    refetchValueByCategory();
-    refetchCheckInValueByCategory();
-    refetchCheckOutValueByCategory();
-  }, [selectedInventoryId, checkIn , checkOut]);
+  // useEffect(() => {
+  //   refetchInventoryTotal();
+  //   refetchValueByStock();
+  //   refetchValueByCategory();
+  //   refetchCheckInValueByCategory();
+  //   refetchCheckOutValueByCategory();
+  // }, [selectedInventoryId, checkIn , checkOut]);
 
   if (
     inventoryTotalLoading ||

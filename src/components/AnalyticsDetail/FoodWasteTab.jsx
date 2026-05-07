@@ -45,41 +45,41 @@ export default function FoodWasteTab() {
     data: foodWasteData,
     loading: foodWasteLoading,
     refetch: refetchFoodWaste,
-  } = useApi(() => totalFoodWaste(inventoryId, startDate, endDate));
+  } = useApi(() => totalFoodWaste(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Food waste data:", foodWasteData);
 
   const {
     data: foodWasteByCauseData,
     loading: foodWasteByCauseLoading,
     refetch: refetchFoodWasteByCause,
-  } = useApi(() => foodWasteByCause(inventoryId, startDate, endDate));
+  } = useApi(() => foodWasteByCause(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Food waste by cause data:", foodWasteByCauseData);
 
   const {
     data: mostWasteItemData,
     loading: mostWasteItemLoading,
     refetch: refetchMostWasteItem,
-  } = useApi(() => mostWasteItem(inventoryId, startDate, endDate));
+  } = useApi(() => mostWasteItem(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Most waste item data:", mostWasteItemData);
 
   const {
     data: foodWasteByCategoryData,
     loading: foodWasteByCategoryLoading,
     refetch: refetchFoodWasteByCategory,
-  } = useApi(() => foodWasteByCategory(inventoryId, startDate, endDate));
+  } = useApi(() => foodWasteByCategory(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Food waste by category data:", foodWasteByCategoryData);
 
   const { data: foodWasteOverviewData, refetch: refetchFoodWasteOverview } =
-    useApi(() => foodWasteOverview(inventoryId, startDate, endDate, foodRange));
+    useApi(() => foodWasteOverview(inventoryId, startDate, endDate, foodRange), [inventoryId, startDate, endDate, foodRange]);
   console.log("Food waste overview data:", foodWasteOverviewData);
 
-  useEffect(() => {
-    refetchFoodWaste();
-    refetchFoodWasteByCause();
-    refetchMostWasteItem();
-    refetchFoodWasteByCategory();
-    refetchFoodWasteOverview();
-  }, [foodRange, inventoryId]);
+  // useEffect(() => {
+  //   refetchFoodWaste();
+  //   refetchFoodWasteByCause();
+  //   refetchMostWasteItem();
+  //   refetchFoodWasteByCategory();
+  //   refetchFoodWasteOverview();
+  // }, [foodRange, inventoryId]);
 
   if (
     foodWasteLoading ||

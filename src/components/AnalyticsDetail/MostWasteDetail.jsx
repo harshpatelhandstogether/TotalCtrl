@@ -37,12 +37,12 @@ export default function MostWasteDetail() {
     data: mostWasteData,
     loading: mostWasteLoading,
     refetch: refetchMostWasteData,
-  } = useApi(() => mostWasteItem(inventoryId, startDate, endDate));
+  } = useApi(() => mostWasteItem(inventoryId, startDate, endDate), [inventoryId, startDate, endDate]);
   console.log("Most waste item data in MostWasteDetail:", mostWasteData);
 
-  useEffect(() => {
-    refetchMostWasteData();
-  }, [foodRange]);
+  // useEffect(() => {
+  //   refetchMostWasteData();
+  // }, [foodRange]);
 
   if (mostWasteLoading) {
     return <MostWasteDetailSkeleton />;
