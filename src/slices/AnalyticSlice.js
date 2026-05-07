@@ -17,6 +17,7 @@ const initialState = {
     foodrange: getCurrentMonthRange(),
     Purchases: getCurrentMonthRange(),
     foodUsage: getCurrentMonthRange(),
+    Transfer: getCurrentMonthRange(), 
   },
 };
 

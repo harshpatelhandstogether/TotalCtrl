@@ -9,6 +9,7 @@ import FoodWasteTab from "./FoodWasteTab";
 import MostWasteDetail from "./MostWasteDetail";
 import WasteByCategoryDetail from "./WasteByCategoryDetail";
 import PurchaseTab from "./PurchaseTab";
+import TransferTab from "./TransferTab";
 
 export default function DetailTab() {
   const navigate = useNavigate();
@@ -81,8 +82,8 @@ export default function DetailTab() {
         {activeTab === "Most Waste" && <MostWasteDetail />}
         {activeTab === "Waste by Category" && <WasteByCategoryDetail />}
         {activeTab === "Purchases" && <PurchaseTab />}
-        {/*{activeTab === "Delivery Stats" && <DeliveryStatsTab />}
-        {activeTab === "Transfers" && <TransfersTab />} */}
+        {/*{activeTab === "Delivery Stats" && <DeliveryStatsTab />}*/}
+        {activeTab === "Transfers" && <TransferTab />} 
       </div>
     </div>
   );

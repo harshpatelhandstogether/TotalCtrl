@@ -7,6 +7,7 @@ import { components } from "react-select";
 import checked from "/check.png";
 import NavbarSkeleton from "./Skeleton/InventoryHeader";
 import Header from "../UI/Header";
+import SelectDropdown from "../UI/SelectDropdown";
 
 export default function InventoryHeader({
   inventoryList,
@@ -15,58 +16,52 @@ export default function InventoryHeader({
   onRetry,
   onInventoryChange,
 }) {
-  const selectedInventoryId = useSelector(
-    (state) => state.inventoryId.inventoryId,
-  );
-  const options = (inventoryList || []).map((inv) => ({
-    value: inv.id,
-    label: inv.name,
-  }));
+  // const selectedInventoryId = useSelector(
+  //   (state) => state.inventoryId.inventoryId,
+  // );
+  // const options = (inventoryList || []).map((inv) => ({
+  //   value: inv.id,
+  //   label: inv.name,
+  // }));
 
-  const groupedOptions = [
-    {
-      label: "Your can edit",
-      options: (inventoryList || [])
-        .filter((inv) => inv.permission === "Editor")
-        .map((inv) => ({
-          value: inv.id,
-          label: inv.name,
-        })),
-    },
-    {
-      label: "Your can view",
-      options: (inventoryList || [])
-        .filter((inv) => inv.permission === "Viewer")
-        .map((inv) => ({
-          value: inv.id,
-          label: inv.name,
-        })),
-    },
-  ];
+  // const groupedOptions = [
+  //   {
+  //     label: "Your can edit",
+  //     options: (inventoryList || [])
+  //       .filter((inv) => inv.permission === "Editor")
+  //       .map((inv) => ({
+  //         value: inv.id,
+  //         label: inv.name,
+  //       })),
+  //   },
+  //   {
+  //     label: "Your can view",
+  //     options: (inventoryList || [])
+  //       .filter((inv) => inv.permission === "Viewer")
+  //       .map((inv) => ({
+  //         value: inv.id,
+  //         label: inv.name,
+  //       })),
+  //   },
+  // ];
 
-  const CustomOption = (props) => {
-    const { isSelected, label } = props;
+  // const CustomOption = (props) => {
+  //   const { isSelected, label } = props;
 
-    return (
-      <components.Option {...props} className="">
-        <div className="flex items-center justify-between w-full">
-          <span>{label}</span>
+  //   return (
+  //     <components.Option {...props} className="">
+  //       <div className="flex items-center justify-between w-full">
+  //         <span>{label}</span>
 
-          {/* <input
-          type="checkbox"
-          checked={isSelected}
-          readOnly
-          className="w-4 h-4 accent-green-500 accent-none"
-        /> */}
-          {isSelected && (
-            <img src={checked} alt="Checked" className="w-3 h-3" />
-          )}
-        </div>
-      </components.Option>
-    );
-  };
+  //         {isSelected && (
+  //           <img src={checked} alt="Checked" className="w-3 h-3" />
+  //         )}
+  //       </div>
+  //     </components.Option>
+  //   );
+  // };
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   if (inventoryLoading) {
     return <NavbarSkeleton />;
@@ -75,7 +70,7 @@ export default function InventoryHeader({
   return (
     <Header title="Inventories" className="text-2xl">
       <div className="flex flex-col">
-        <Select
+        {/* <Select
           className="w-[350px]"
           isDisabled={inventoryError}
           options={inventoryError ? [] : groupedOptions}
@@ -150,7 +145,9 @@ export default function InventoryHeader({
               opacity: inventoryLoading ? 0.6 : 1,
             }),
           }}
-        />
+        /> */}
+        <SelectDropdown  DataList={inventoryList} Loading={inventoryLoading} Error={inventoryError} onChange={onInventoryChange} />
+
         {inventoryError && (
           <span className="text-red-500 text-sm">
             {"Failed to load inventories. Please try again."}
