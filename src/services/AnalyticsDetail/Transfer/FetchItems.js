@@ -7,6 +7,8 @@ export const fetchItems = async (
   endDate,
   transferFilter,
   selectedItem,
+  sortConfig,
+
 ) => {
   try {
     const involvedInventoryIds = Array.isArray(selectedItem)
@@ -25,8 +27,8 @@ export const fetchItems = async (
         userId: "933c82a7-1368-4ee3-8b98-36f2735b2d6a",
         transferType: transferFilter, // "1" for Transferred In, "2" for Transferred Out, "1,2" for both
         involvedInventoryIds: involvedInventoryIds.join(","),
-        sortBy: "date",
-        sortOrder: "desc",
+        sortBy: sortConfig.key,
+        sortOrder: sortConfig.direction,
         limit: 100,
         offset: 0,
       }

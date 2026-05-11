@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { setFoodRange } from "../../slices/AnalyticSlice";
+import InventoryIllustration from "../../assets/img/InventoryIllustration.svg";
 
 // function ValueByStock({ valueByStock, inventoryTotal , valueByStockLoading }) {
 //     const rows = valueByStockLoading
@@ -101,7 +102,10 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: inventoryTotalLoading,
     error: inventoryTotalError,
     refetch: refetchInventoryTotal,
-  } = useApi(() => fetchInventoryTotal(selectedInventoryId), [selectedInventoryId]);
+  } = useApi(
+    () => fetchInventoryTotal(selectedInventoryId),
+    [selectedInventoryId],
+  );
   console.log("inventoryTotal", inventoryTotal);
 
   const {
@@ -109,14 +113,20 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: valueByStockLoading,
     error: valueByStockError,
     refetch: refetchValueByStock,
-  } = useApi(() => fetchValueByStock(selectedInventoryId, 6, 0), [selectedInventoryId]);
+  } = useApi(
+    () => fetchValueByStock(selectedInventoryId, 6, 0),
+    [selectedInventoryId],
+  );
 
   const {
     data: valueByCategory,
     loading: valueByCategoryLoading,
     error: valueByCategoryError,
     refetch: refetchValueByCategory,
-  } = useApi(() => fetchValueByCategory(selectedInventoryId, 6, 0), [selectedInventoryId]);
+  } = useApi(
+    () => fetchValueByCategory(selectedInventoryId, 6, 0),
+    [selectedInventoryId],
+  );
 
   // const [checkInRange, setCheckInRange] = useState([
   //   {
@@ -138,9 +148,16 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: checkInValueByCategoryLoading,
     error: checkInValueByCategoryError,
     refetch: refetchCheckInValueByCategory,
-  } = useApi(() =>
-    fetchCheckInValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
-    [ selectedInventoryId, startDate, endDate]
+  } = useApi(
+    () =>
+      fetchCheckInValueByCategory(
+        selectedInventoryId,
+        6,
+        0,
+        startDate,
+        endDate,
+      ),
+    [selectedInventoryId, startDate, endDate],
   );
   console.log("checkInValueByCategory", checkInValueByCategory);
 
@@ -149,9 +166,16 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
     loading: checkOutValueByCategoryLoading,
     error: checkOutValueByCategoryError,
     refetch: refetchCheckOutValueByCategory,
-  } = useApi(() =>
-    fetchCheckOutValueByCategory(selectedInventoryId, 6, 0, startDate, endDate),
-    [selectedInventoryId, startDate, endDate]
+  } = useApi(
+    () =>
+      fetchCheckOutValueByCategory(
+        selectedInventoryId,
+        6,
+        0,
+        startDate,
+        endDate,
+      ),
+    [selectedInventoryId, startDate, endDate],
   );
   console.log("checkOutValueByCategory", checkOutValueByCategory);
 
@@ -175,240 +199,284 @@ export default function InventoryStatsTab({ selectedInventoryId }) {
 
   return (
     <div className="px-10 py-10">
-      <div className="header flex items-start justify-between mb-10">
-        <div>
-          <div className="text-xl font-semibold">Inventory</div>
-          <div className="mt-8">
-            <h1 className="text-sm text-[#6b6b6f]">TOTAL INVENTORY VALUE</h1>
-            <Skeleton name="InventoryTotal" loading={inventoryTotalLoading}>
-              <h1 className="text-6xl font-normal mt-4">
-                {displayCurrency(
-                  Math.round(inventoryTotal?.inventoryValue[0]?.total || 0),
-                  inventoryTotal?.currency,
-                )}
-              </h1>
-            </Skeleton>
+      {Array.isArray(inventoryTotal?.inventoryValue) && inventoryTotal?.inventoryValue[0]?.total === 0 ? (
+        <>
+          <div className="header flex items-start justify-between mb-10">
+            <div>
+              <div className="text-xl font-semibold">Inventory</div>
+              <button className="text-sm font-semibold">Export Data</button>
+            </div>
+            <div>
+              <div className="flex flex-col items-center">
+                <img
+                  src={InventoryIllustration}
+                  alt="No data"
+                  className="w-48 h-48 opacity-50"
+                />
+                <div className="px-4 mt-6 text-2xl text-[#595959] text-center align-middle">
+                  No products found
+                </div>
+                <div className="px-4 mt-2 text-sm text-[#595959] text-center align-middle">
+                  We can't show any useful information without them. Please add a new product using the button below.
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div>
-          <div className="border border-gray-300 rounded-md px-4 py-[6px]">
-            <button className="text-sm font-semibold">Export Data</button>
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-10 mb-10">
-        <div className="valuebysupplier w-[50%]">
-          <table className="w-full border-collapse">
-            <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
-              <label className="text-xs text-[#adadaf] font-normal">
-                VALUE BY SUPPLIER
-              </label>
-            </th>
-            {valueByStock?.slice(0, 3).map((item) => (
-              <tr className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer">
-                <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
-                  <Skeleton name="ValueByStock" loading={valueByStockLoading}>
-                    <span>{item.name}</span>
-                  </Skeleton>
-                </td>
-
-                <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
-                  <span>
+        </>
+      ) : (
+        <>
+          <div className="header flex items-start justify-between mb-10">
+            <div>
+              <div className="text-xl font-semibold">Inventory</div>
+              <div className="mt-8">
+                <h1 className="text-sm text-[#6b6b6f]">
+                  TOTAL INVENTORY VALUE
+                </h1>
+                <Skeleton name="InventoryTotal" loading={inventoryTotalLoading}>
+                  <h1 className="text-6xl font-normal mt-4">
                     {displayCurrency(
-                      Math.round(item.total || 0),
+                      Math.round(inventoryTotal?.inventoryValue[0]?.total || 0),
                       inventoryTotal?.currency,
                     )}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </table>
-          {/* <ValueByStock valueByStock={valueByStock} inventoryTotal={inventoryTotal} valueByStockLoading={valueByStockLoading}/> */}
-
-          {valueByStock && valueByStock.length > 3 && (
-            <a
-              href={`/byStock`}
-              className="text-[#228f50]  app-bg block py-2 w-full text-center"
-            >
-              View more
-            </a>
-          )}
-        </div>
-        <div className="valuebycategory w-[50%]">
-          <table className="w-full border-collapse">
-            <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
-              <label className="text-xs text-[#adadaf] font-normal">
-                VALUE BY CATEGORY
-              </label>
-            </th>
-            {valueByCategory?.slice(0, 3).map((item) => (
-              <tr className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer">
-                <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
-                  {item.name}
-                </td>
-                <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
-                  {displayCurrency(
-                    Math.round(item.total || 0),
-                    inventoryTotal?.currency,
-                  )}
-                </td>
-              </tr>
-            ))}
-          </table>
-          {valueByCategory && valueByCategory.length > 3 && (
-            <a
-              href="/byCategory"
-              className="text-[#228f50]  app-bg block py-2 w-full text-center"
-            >
-              View more
-            </a>
-          )}
-        </div>
-      </div>
-      <div className="flex gap-10 mb-10">
-        <div className="valuebysupplier w-[50%]">
-          <label className="text-xs text-[#adadaf] font-normal px-4">
-            CHECK IN & OUT VALUE
-          </label>
-          <div className="flex items-start justify-between px-4 mt-10">
-            <h1>Check in</h1>
-            {/* <DatePicker
-              value={checkInRange}
-              onChange={setCheckInRange}
-              months={1}
-            /> */}
-            <DatePicker
-              value={parsedRange}
-              onChange={(newRange) =>
-                dispatch(
-                  setFoodRange({
-                    key: "invCheckIn",
-                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
-                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
-                  }),
-                )
-              }
-              months={1}
-            />
-          </div>
-          {checkInValueByCategory?.TotalValue > 0 && (
-            <div className="text-2xl px-4 mt-2">
-              {displayCurrency(
-                Math.round(checkInValueByCategory?.TotalValue),
-                checkInValueByCategory?.Data?.[0]?.currency,
-              )}
+                  </h1>
+                </Skeleton>
+              </div>
             </div>
-          )}
-          {checkInValueByCategory?.Data?.length > 0 ? (
-            <div className="px-4">
-              <table className="w-full border-collapse mt-6 text-sm text-[#595959]">
-                {checkInValueByCategory?.Data?.slice(0, 3)?.map((category) => (
-                  <tr className="border-b border-[#e6e6ed] cursor-pointer nth-last-1:border-b-0">
-                    <td>{category.name}</td>
-                    <td className="text-right py-4 ">
-                      +{" "}
-                      {displayCurrency(
-                        Math.round(category?.total),
-                        category.currency,
-                      )}{" "}
+            <div>
+              <div className="border border-gray-300 rounded-md px-4 py-[6px]">
+                <button className="text-sm font-semibold">Export Data</button>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-10 mb-10">
+            <div className="valuebysupplier w-[50%]">
+              <table className="w-full border-collapse">
+                <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
+                  <label className="text-xs text-[#adadaf] font-normal">
+                    VALUE BY SUPPLIER
+                  </label>
+                </th>
+                {valueByStock?.slice(0, 3).map((item) => (
+                  <tr className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer">
+                    <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
+                      <Skeleton
+                        name="ValueByStock"
+                        loading={valueByStockLoading}
+                      >
+                        <span>{item.name}</span>
+                      </Skeleton>
+                    </td>
+
+                    <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
+                      <span>
+                        {displayCurrency(
+                          Math.round(item.total || 0),
+                          inventoryTotal?.currency,
+                        )}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </table>
-              {checkInValueByCategory?.Data?.length > 3 && (
+              {/* <ValueByStock valueByStock={valueByStock} inventoryTotal={inventoryTotal} valueByStockLoading={valueByStockLoading}/> */}
+
+              {valueByStock && valueByStock.length > 3 && (
                 <a
-                  href="/byCheckInCategory"
+                  href={`/byStock`}
                   className="text-[#228f50]  app-bg block py-2 w-full text-center"
                 >
                   View more
                 </a>
               )}
             </div>
-          ) : (
-            <div className="flex flex-col item-center justify-center h-[200px]">
-              <div className="px-4 mt-6 text-2xl text-[#595959] text-center align-middle">
-                No check ins
-              </div>
-              <div className="px-4 mt-2 text-sm text-[#595959] text-center align-middle">
-                There hasn't been any check in made during the selected time
-                range.
-              </div>
+            <div className="valuebycategory w-[50%]">
+              <table className="w-full border-collapse">
+                <th className="py-4 px-4 text-sm text-[#595959] text-left w-[18%] font-semibold">
+                  <label className="text-xs text-[#adadaf] font-normal">
+                    VALUE BY CATEGORY
+                  </label>
+                </th>
+                {valueByCategory?.slice(0, 3).map((item) => (
+                  <tr className="border-b border-[#e6e6ed] nth-last-1:border-b-0 cursor-pointer">
+                    <td className="py-5 px-4 text-sm text-[#595959] text-left w-[18%] ">
+                      {item.name}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-[#595959] text-right w-[11%]">
+                      {displayCurrency(
+                        Math.round(item.total || 0),
+                        inventoryTotal?.currency,
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              {valueByCategory && valueByCategory.length > 3 && (
+                <a
+                  href="/byCategory"
+                  className="text-[#228f50]  app-bg block py-2 w-full text-center"
+                >
+                  View more
+                </a>
+              )}
             </div>
-          )}
-        </div>
-        <div className="valuebysupplier w-[50%]">
-          <label className="text-xs text-[#adadaf] font-normal px-4">
-            CHECK IN & OUT VALUE
-          </label>
-          <div className="flex items-start justify-between px-4 mt-10">
-            <h1>Check out</h1>
-            {/* <DatePicker
-              value={checkoutRange}
-              onChange={setCheckoutRange}
+          </div>
+          <div className="flex gap-10 mb-10">
+            <div className="valuebysupplier w-[50%]">
+              <label className="text-xs text-[#adadaf] font-normal px-4">
+                CHECK IN & OUT VALUE
+              </label>
+              <div className="flex items-start justify-between px-4 mt-10">
+                <h1>Check in</h1>
+                {/* <DatePicker
+              value={checkInRange}
+              onChange={setCheckInRange}
               months={1}
             /> */}
-            <DatePicker
-              value={parsedRanges}
-              onChange={(newRange) =>
-                dispatch(
-                  setFoodRange({
-                    key: "invCheckOut",
-                    startDate: format(newRange.startDate, "yyyy-MM-dd"),
-                    endDate: format(newRange.endDate, "yyyy-MM-dd"),
-                  }),
-                )
-              }
-              months={1}
-            />
-          </div>
-          {checkOutValueByCategory?.TotalValue > 0 && (
-            <div className="text-2xl px-4 mt-2">
-              {displayCurrency(
-                Math.round(checkOutValueByCategory?.TotalValue),
-                checkOutValueByCategory?.Data?.[0]?.currency,
+                <DatePicker
+                  value={parsedRange}
+                  onChange={(newRange) =>
+                    dispatch(
+                      setFoodRange({
+                        key: "invCheckIn",
+                        startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                        endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                      }),
+                    )
+                  }
+                  months={1}
+                />
+              </div>
+              {checkInValueByCategory?.TotalValue > 0 && (
+                <div className="text-2xl px-4 mt-2">
+                  {displayCurrency(
+                    Math.round(checkInValueByCategory?.TotalValue),
+                    checkInValueByCategory?.Data?.[0]?.currency,
+                  )}
+                </div>
               )}
-            </div>
-          )}
-          {checkOutValueByCategory?.Data?.length > 0 ? (
-            <div className="px-4">
-              <table className="w-full border-collapse mt-6 text-sm text-[#595959]">
-                {checkOutValueByCategory?.Data?.slice(0, 3).map(
-                  (item, index) => (
-                    <tr
-                      className="border-b border-[#e6e6ed] cursor-pointer nth-last-1:border-b-0"
-                      key={index}
+              {checkInValueByCategory?.Data?.length > 0 ? (
+                <div className="px-4">
+                  <table className="w-full border-collapse mt-6 text-sm text-[#595959]">
+                    {checkInValueByCategory?.Data?.slice(0, 3)?.map(
+                      (category) => (
+                        <tr className="border-b border-[#e6e6ed] cursor-pointer nth-last-1:border-b-0">
+                          <td>{category.name}</td>
+                          <td className="text-right py-4 ">
+                            +{" "}
+                            {displayCurrency(
+                              Math.round(category?.total),
+                              category.currency,
+                            )}{" "}
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                  </table>
+                  {checkInValueByCategory?.Data?.length > 3 && (
+                    <a
+                      href="/byCheckInCategory"
+                      className="text-[#228f50]  app-bg block py-2 w-full text-center"
                     >
-                      <td>{item.name}</td>
-                      <td className="text-right py-4 ">
-                        -{" "}
-                        {displayCurrency(Math.round(item.total), item.currency)}
-                      </td>
-                    </tr>
-                  ),
-                )}
-              </table>
-              {checkOutValueByCategory?.Data?.length > 3 && (
-                <a
-                  href="/byCheckOutCategory"
-                  className="text-[#228f50]  app-bg block py-2 w-full text-center"
-                >
-                  View more
-                </a>
+                      View more
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col item-center justify-center h-[200px]">
+                  <img
+                    src={InventoryIllustration}
+                    alt="No data"
+                    className="w-24 h-24 opacity-50 mx-auto pt-5"
+                  />
+                  <div className="px-4 mt-6 text-2xl text-[#595959] text-center align-middle">
+                    No check ins
+                  </div>
+                  <div className="px-4 mt-2 text-sm text-[#595959] text-center align-middle">
+                    There hasn't been any check in made during the selected time
+                    range.
+                  </div>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="flex flex-col item-center justify-center h-[200px]">
-              <div className="px-4 mt-6 text-2xl text-[#595959] text-center align-middle">
-                No check outs
+            <div className="valuebysupplier w-[50%]">
+              <label className="text-xs text-[#adadaf] font-normal px-4">
+                CHECK IN & OUT VALUE
+              </label>
+              <div className="flex items-start justify-between px-4 mt-10">
+                <h1>Check out</h1>
+
+                <DatePicker
+                  value={parsedRanges}
+                  onChange={(newRange) =>
+                    dispatch(
+                      setFoodRange({
+                        key: "invCheckOut",
+                        startDate: format(newRange.startDate, "yyyy-MM-dd"),
+                        endDate: format(newRange.endDate, "yyyy-MM-dd"),
+                      }),
+                    )
+                  }
+                  months={1}
+                />
               </div>
-              <div className="px-4 mt-2 text-sm text-[#595959] text-center align-middle">
-                There hasn't been any check out made during the selected time
-                range.
-              </div>
+              {checkOutValueByCategory?.TotalValue > 0 && (
+                <div className="text-2xl px-4 mt-2">
+                  {displayCurrency(
+                    Math.round(checkOutValueByCategory?.TotalValue),
+                    checkOutValueByCategory?.Data?.[0]?.currency,
+                  )}
+                </div>
+              )}
+              {checkOutValueByCategory?.Data?.length > 0 ? (
+                <div className="px-4">
+                  <table className="w-full border-collapse mt-6 text-sm text-[#595959]">
+                    {checkOutValueByCategory?.Data?.slice(0, 3).map(
+                      (item, index) => (
+                        <tr
+                          className="border-b border-[#e6e6ed] cursor-pointer nth-last-1:border-b-0"
+                          key={index}
+                        >
+                          <td>{item.name}</td>
+                          <td className="text-right py-4 ">
+                            -{" "}
+                            {displayCurrency(
+                              Math.round(item.total),
+                              item.currency,
+                            )}
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                  </table>
+                  {checkOutValueByCategory?.Data?.length > 3 && (
+                    <a
+                      href="/byCheckOutCategory"
+                      className="text-[#228f50]  app-bg block py-2 w-full text-center"
+                    >
+                      View more
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col item-center justify-center h-[200px]">
+                  <img
+                    src={InventoryIllustration}
+                    alt="No data"
+                    className="w-24 h-24 opacity-50 mx-auto pt-5"
+                  />
+                  <div className="px-4 mt-6 text-2xl text-[#595959] text-center align-middle">
+                    No check outs
+                  </div>
+                  <div className="px-4 mt-2 text-sm text-[#595959] text-center align-middle">
+                    There hasn't been any check out made during the selected
+                    time range.
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

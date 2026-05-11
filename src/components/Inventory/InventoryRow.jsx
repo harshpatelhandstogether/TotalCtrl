@@ -127,8 +127,6 @@ export default function InventoryRow({
 
   return (
     <>
-      
-
         {localProducts?.map((product, index) => (
           <tr key={index} className="align-top border-b-1  border-gray-200 ">
             <td className="px-3 pl-5 py-8  p-4">

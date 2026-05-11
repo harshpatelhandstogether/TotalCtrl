@@ -17,8 +17,8 @@ export default function SelectDropdown({
   options: explicitOptions,
   value: externalValue,
   placeholder = "Select Inventory",
+  default: defaultValue,
 }) {
-  const [selectedItemInventory, setSelectedItemInventory] = useState(null);
   const dispatch = useDispatch();
   const selectedInventoryId = useSelector(
     (state) => state.inventoryId.inventoryId,
@@ -94,10 +94,12 @@ export default function SelectDropdown({
         value={
           resolvedLoading
             ? null
-            : externalValue !== undefined
+            : externalValue !== undefined && externalValue !== null
               ? externalValue
-              : options.find((option) => option.value === selectedInventoryId)
+              : defaultValue ??
+                options.find((option) => option.value === selectedInventoryId)
         }
+        defaultValue={defaultValue}
         theme={(theme) => ({
           ...theme,
           borderRadius: 5,
@@ -150,6 +152,7 @@ export default function SelectDropdown({
             // dim while loading
             ...base,
             opacity: resolvedLoading ? 0.6 : 1,
+            fontSize: "14px",
           }),
         }}
       />
